@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.6.18)  9 MAY 2022 15:54
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.6.18)  9 MAY 2022 16:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -873,30 +873,37 @@ Chapter 2.
 
 LaTeX Warning: Reference `methods' on page 7 undefined on input line 158.
 
+File: interactive-maps_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (t
+ype pdf)
+<use interactive-maps_files/figure-latex/unnamed-chunk-3-1.pdf>
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[7]
 File: interactive-maps_files/figure-latex/nice-fig-1.pdf Graphic file (type pdf
 )
 <use interactive-maps_files/figure-latex/nice-fig-1.pdf>
 No file interactive-maps.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 226.
-[7] [8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 226.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 246.
+[8] [9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 246.
 (./interactive-maps.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 226.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 226.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 246.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 246.
 Package rerunfilecheck Info: File `interactive-maps.out' has not changed.
 (rerunfilecheck)             Checksum: 5FB95F5340FE358F6AE6204AB98CD50C;211.
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 226.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 246.
  ) 
 Here is how much of TeX's memory you used:
- 17544 strings out of 481276
- 309386 string characters out of 5923594
- 725672 words of memory out of 5000000
- 34830 multiletter control sequences out of 15000+600000
+ 17550 strings out of 481276
+ 309720 string characters out of 5923594
+ 724672 words of memory out of 5000000
+ 34835 multiletter control sequences out of 15000+600000
  538781 words of font info for 76 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  53i,8n,118p,910b,355s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on interactive-maps.pdf (8 pages).
+Output written on interactive-maps.pdf (9 pages).

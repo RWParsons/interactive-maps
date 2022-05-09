@@ -157,6 +157,26 @@ To compile this example to PDF, you need XeLaTeX. You are recommended to install
 
 You can label chapter and section titles using \texttt{\{\#label\}} after them, e.g., we can reference Chapter \ref{intro}. If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \ref{methods}.
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(leaflet)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'leaflet' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addTiles}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}  \CommentTok{\# Add default OpenStreetMap map tiles}
+  \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\FloatTok{174.768}\NormalTok{, }\AttributeTok{lat=}\SpecialCharTok{{-}}\FloatTok{36.852}\NormalTok{, }\AttributeTok{popup=}\StringTok{"The birthplace of R"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{interactive-maps_files/figure-latex/unnamed-chunk-3-1.pdf}
+
 Figures and tables with captions will be placed in \texttt{figure} and \texttt{table} environments, respectively.
 
 \begin{Shaded}
