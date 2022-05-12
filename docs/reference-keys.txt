@@ -1,4 +1,7 @@
+fig:leaflet-map
 fig:nice-fig
 tab:nice-tab
 prerequisites
 intro
+building
+shiny-intro

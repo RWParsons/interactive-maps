@@ -1,0 +1,7 @@
+# Creating the layers {#building}
+
+This chapter will cover the necessary steps to make layers which will be visualised in the app:
+
+* kriging
+* spatial joins
+* aggregating interpolations within polygons

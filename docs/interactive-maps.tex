@@ -4,10 +4,6 @@
 %
 \documentclass[
 ]{book}
-\title{Interactive maps with leaflet}
-\author{Rex Parsons}
-\date{2022-05-09}
-
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
 \usepackage{iftex}
@@ -126,6 +122,10 @@
 \usepackage[]{natbib}
 \bibliographystyle{apalike}
 
+\title{Interactive maps with leaflet}
+\author{Rex Parsons}
+\date{2022-05-12}
+
 \begin{document}
 \maketitle
 
@@ -136,46 +136,40 @@
 \hypertarget{prerequisites}{%
 \chapter{Prerequisites}\label{prerequisites}}
 
-This is a \emph{sample} book written in \textbf{Markdown}. You can use anything that Pandoc's Markdown supports, e.g., a math equation \(a^2 + b^2 = c^2\).
+This book is intended as a non-comprehensive guide to developing interactive
+maps with leaflet and shiny. This is by no means comprehensive as it is based on
+methods that were used in developing the
+\href{https://access.healthequity.link/}{iTRAQI shiny app}. However, since this book
+does focus on the applied problem of developing the iTRAQI shiny app, it
+includes specific help and methods for these are described here that may be
+otherwise difficult to find.
 
-The \textbf{bookdown} package can be installed from CRAN or Github:
+For a more comprehensive introduction to leaflet, see the
+\href{https://rstudio.github.io/leaflet/}{leaflet documentation}.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{install.packages}\NormalTok{(}\StringTok{"bookdown"}\NormalTok{)}
-\CommentTok{\# or the development version}
-\CommentTok{\# devtools::install\_github("rstudio/bookdown")}
-\end{Highlighting}
-\end{Shaded}
-
-Remember each Rmd file contains one and only one chapter, and a chapter is defined by the first-level heading \texttt{\#}.
-
-To compile this example to PDF, you need XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): \url{https://yihui.name/tinytex/}.
+For a more comprehensive introduction to shiny, see the
+\href{https://mastering-shiny.org/}{Mastering Shiny book}
 
 \hypertarget{intro}{%
 \chapter{Introduction}\label{intro}}
 
-You can label chapter and section titles using \texttt{\{\#label\}} after them, e.g., we can reference Chapter \ref{intro}. If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \ref{methods}.
+You can label chapter and section titles using \texttt{\{\#label\}} after them, e.g., we can reference Chapter \ref{intro}. If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \ref{building}.
+
+See \ref{fig:leaflet-map} for a simple leaflet map
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(leaflet)}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
-## Warning: package 'leaflet' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{addTiles}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}  \CommentTok{\# Add default OpenStreetMap map tiles}
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\FloatTok{174.768}\NormalTok{, }\AttributeTok{lat=}\SpecialCharTok{{-}}\FloatTok{36.852}\NormalTok{, }\AttributeTok{popup=}\StringTok{"The birthplace of R"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{interactive-maps_files/figure-latex/unnamed-chunk-3-1.pdf}
+\begin{figure}
+\includegraphics[width=1\linewidth]{interactive-maps_files/figure-latex/leaflet-map-1} \caption{Simple leaflet map}\label{fig:leaflet-map}
+\end{figure}
 
 Figures and tables with captions will be placed in \texttt{figure} and \texttt{table} environments, respectively.
 
@@ -240,6 +234,38 @@ Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\hypertarget{building}{%
+\chapter{Creating the layers}\label{building}}
+
+This chapter will cover the necessary steps to make layers which will be visualised in the app:
+
+\begin{itemize}
+\tightlist
+\item
+  kriging
+\item
+  spatial joins
+\item
+  aggregating interpolations within polygons
+\end{itemize}
+
+\hypertarget{shiny-intro}{%
+\chapter{An app with a map}\label{shiny-intro}}
+
+This chapter will have a brief intro to shiny with a map:
+
+\begin{itemize}
+\tightlist
+\item
+  ui and server
+\item
+  reactivity
+\item
+  leaflet
+\item
+  leafletproxy
+\end{itemize}
 
   \bibliography{book.bib,packages.bib}
 
