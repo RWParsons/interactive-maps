@@ -2,7 +2,9 @@
 
 You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods).
 
-```{r}
+See \@ref(fig:leaflet-map) for a simple leaflet map 
+
+```{r leaflet-map}
 library(leaflet)
 
 leaflet() %>%
