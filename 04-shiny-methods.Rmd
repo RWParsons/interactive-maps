@@ -1,0 +1,8 @@
+# An app with a map {#shiny-methods}
+
+This chapter will have a brief intro to shiny with a map:
+
+* ui and server
+* reactivity
+* leaflet
+* leafletproxy

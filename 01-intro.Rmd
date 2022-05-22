@@ -1,10 +1,9 @@
 # Introduction {#intro}
 
-You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(building).
+This book focuses on using `leaflet` and `shiny` together to make interactive maps.
 
-See \@ref(fig:leaflet-map) for a simple leaflet map 
-
-```{r leaflet-map, fig.cap='Simple leaflet map', out.width='100%'}
+Here's a simple leaflet map.
+```{r leaflet-simple, fig.cap='Simple leaflet map', out.width='100%', fig.width=12, warning=F}
 library(leaflet)
 
 leaflet() %>%
@@ -13,19 +12,80 @@ leaflet() %>%
 
 ```
 
-Figures and tables with captions will be placed in `figure` and `table` environments, respectively.
+Before we begin adding to this map, we need to create the layers that we want to add.
 
-```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
-par(mar = c(4, 4, .1, .1))
-plot(pressure, type = 'b', pch = 19)
-```
+In the iTRAQI app, we used markers, rasters and polygons to show the key locations and interpolations.
 
-Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab).
+See the [iTRAQI shiny app here](https://access.healthequity.link/) and read more about it in the information tab of the app. 
 
-```{r nice-tab, tidy=FALSE}
-knitr::kable(
-  head(iris, 20), caption = 'Here is a nice table!',
-  booktabs = TRUE
+Chapter \@ref(building) will focus on these first steps, before making any maps or interactivity. If you're already well-versed in making these layers and the `sf` R package, you can skip to the latter chapters. 
+
+
+## leaflet layers
+
+* To display statistical area level 1 and 2 (SA1 and SA2) regions on the map, we will be using `sf` objects with MULTIPOLYGON geometries. These are multipolygons because some of these areas include distinct areas, such as a set of islands, that aren't contained within a single polygon.
+
+* To display the location of acute and rehab centers and town locations with travel times that we used for interpolations, we used (spatial) data.frames that had longitudes and latitudes for their location.
+
+* To display the continuous interpolations, we used [`RasterLayer`](https://rdrr.io/cran/raster/man/raster.html) objects.
+
+
+Using a polygon and raster layer that's used in the iTRAQI map and some markers in a data.frame, we can make see the basic approach that we use to display these on a leaflet map.
+
+First, lets make a data.frame with the coordinates for the Princess Alexandra  and Townsville University Hospitals, and download a raster and polygon layer from the iTRAQI app GitHub repository.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+library(tidyverse)
+library(sf)
+download_layer <- function(layer_name, save_dir="input") {
+  githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/layers/{layer_name}")
+  download.file(githubURL, file.path(save_dir, layer_name), method="curl")
+  readRDS(file.path(save_dir, layer_name))
+}
+
+raster_layer <- download_layer("rehab_raster.rds") %>%
+  raster::raster(., layer=1)
+
+polygons_layer <- download_layer("stacked_SA1_and_SA2_polygons_year2016_simplified.rds")
+polygons_layer <- polygons_layer[polygons_layer$SA_level==2, ] # show SA2 regions for example
+
+marker_locations <- data.frame(
+  centre_name=c("Princess Alexandra Hospital (PAH)", "Townsville University Hospital"),
+  x=c(153.033519, 146.762041),
+  y=c(-27.497374, -19.320502)
 )
 ```
 
+Here, in figure \@ref(fig:leaflet-objects), we make a leaflet map with the three object types. We will use these three functions, `addPolygons()`, `addRasterImage()`, and `addMarkers()` to add almost all of the content to our leaflet maps.
+
+```{r leaflet-objects, fig.cap='leaflet map with polygons, rasters and markers', out.width='100%', fig.width=12, warning=FALSE}
+
+leaflet() %>%
+  addProviderTiles("CartoDB.VoyagerNoLabels") %>% # add a simple base map
+  addPolygons(
+    data=polygons_layer,
+    fillColor="Orange",
+    color="black",
+    weight=1,
+    group="Polygons"
+  ) %>%
+  addRasterImage(
+    x=raster_layer,
+    colors="YlOrRd",
+    group="Raster"
+  ) %>%
+  addMarkers(
+    lng=marker_locations$x, 
+    lat=marker_locations$y,
+    label=marker_locations$centre_name,
+    group="Points"
+  ) %>%
+  addLayersControl(
+    position="topright",
+    baseGroups=c("Polygons", "Raster", "Points"),
+    options=layersControlOptions(collapsed = FALSE)
+  )
+
+```
+
+Almost all of these objects were made before being used in the shiny app. Chapter \@ref(building) will introduce the methods used to make them. Chapter \@ref(shiny-intro) will introduce the basics of a shiny app. Chapter \@ref(shiny-methods) will introduce the more specific methods that were used to construct the iTRAQI app itself.

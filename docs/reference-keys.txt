@@ -1,7 +1,8 @@
-fig:leaflet-map
-fig:nice-fig
-tab:nice-tab
+fig:leaflet-simple
+fig:leaflet-objects
 prerequisites
 intro
+leaflet-layers
 building
 shiny-intro
+shiny-methods

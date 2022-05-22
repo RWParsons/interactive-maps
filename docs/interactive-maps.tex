@@ -4,6 +4,10 @@
 %
 \documentclass[
 ]{book}
+\title{Interactive maps with leaflet}
+\author{Rex Parsons}
+\date{2022-05-22}
+
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
 \usepackage{iftex}
@@ -122,10 +126,6 @@
 \usepackage[]{natbib}
 \bibliographystyle{apalike}
 
-\title{Interactive maps with leaflet}
-\author{Rex Parsons}
-\date{2022-05-12}
-
 \begin{document}
 \maketitle
 
@@ -136,13 +136,7 @@
 \hypertarget{prerequisites}{%
 \chapter{Prerequisites}\label{prerequisites}}
 
-This book is intended as a non-comprehensive guide to developing interactive
-maps with leaflet and shiny. This is by no means comprehensive as it is based on
-methods that were used in developing the
-\href{https://access.healthequity.link/}{iTRAQI shiny app}. However, since this book
-does focus on the applied problem of developing the iTRAQI shiny app, it
-includes specific help and methods for these are described here that may be
-otherwise difficult to find.
+This book is intended as a non-comprehensive guide to developing interactive maps with leaflet and shiny. This is by no means comprehensive as it is based on methods that were used in developing the\href{https://access.healthequity.link/}{iTRAQI shiny app}. However, since this book does focus on the applied problem of developing the iTRAQI shiny app, it includes specific help and methods for these are described here that may be otherwise difficult to find.
 
 For a more comprehensive introduction to leaflet, see the
 \href{https://rstudio.github.io/leaflet/}{leaflet documentation}.
@@ -153,9 +147,9 @@ For a more comprehensive introduction to shiny, see the
 \hypertarget{intro}{%
 \chapter{Introduction}\label{intro}}
 
-You can label chapter and section titles using \texttt{\{\#label\}} after them, e.g., we can reference Chapter \ref{intro}. If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \ref{building}.
+This book focuses on using \texttt{leaflet} and \texttt{shiny} together to make interactive maps.
 
-See \ref{fig:leaflet-map} for a simple leaflet map
+Here's a simple leaflet map.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -168,72 +162,125 @@ See \ref{fig:leaflet-map} for a simple leaflet map
 \end{Shaded}
 
 \begin{figure}
-\includegraphics[width=1\linewidth]{interactive-maps_files/figure-latex/leaflet-map-1} \caption{Simple leaflet map}\label{fig:leaflet-map}
+\includegraphics[width=1\linewidth]{interactive-maps_files/figure-latex/leaflet-simple-1} \caption{Simple leaflet map}\label{fig:leaflet-simple}
 \end{figure}
 
-Figures and tables with captions will be placed in \texttt{figure} and \texttt{table} environments, respectively.
+Before we begin adding to this map, we need to create the layers that we want to add.
+
+In the iTRAQI app, we used markers, rasters and polygons to show the key locations and interpolations.
+
+See the \href{https://access.healthequity.link/}{iTRAQI shiny app here} and read more about it in the information tab of the app.
+
+Chapter \ref{building} will focus on these first steps, before making any maps or interactivity. If you're already well-versed in making these layers and the \texttt{sf} R package, you can skip to the latter chapters.
+
+\hypertarget{leaflet-layers}{%
+\section{leaflet layers}\label{leaflet-layers}}
+
+\begin{itemize}
+\item
+  To display statistical area level 1 and 2 (SA1 and SA2) regions on the map, we will be using \texttt{sf} objects with MULTIPOLYGON geometries. These are multipolygons because some of these areas include distinct areas, such as a set of islands, that aren't contained within a single polygon.
+\item
+  To display the location of acute and rehab centers and town locations with travel times that we used for interpolations, we used (spatial) data.frames that had longitudes and latitudes for their location.
+\item
+  To display the continuous interpolations, we used \href{https://rdrr.io/cran/raster/man/raster.html}{\texttt{RasterLayer}} objects.
+\end{itemize}
+
+Using a polygon and raster layer that's used in the iTRAQI map and some markers in a data.frame, we can make see the basic approach that we use to display these on a leaflet map.
+
+First, lets make a data.frame with the coordinates for the Princess Alexandra and Townsville University Hospitals, and download a raster and polygon layer from the iTRAQI app GitHub repository.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{par}\NormalTok{(}\AttributeTok{mar =} \FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, .}\DecValTok{1}\NormalTok{, .}\DecValTok{1}\NormalTok{))}
-\FunctionTok{plot}\NormalTok{(pressure, }\AttributeTok{type =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{, }\AttributeTok{pch =} \DecValTok{19}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{figure}
+\begin{verbatim}
+## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+\end{verbatim}
 
-{\centering \includegraphics[width=0.8\linewidth]{interactive-maps_files/figure-latex/nice-fig-1} 
+\begin{verbatim}
+## v ggplot2 3.3.6     v purrr   0.3.4
+## v tibble  3.1.2     v dplyr   1.0.6
+## v tidyr   1.1.3     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1
+\end{verbatim}
 
-}
-
-\caption{Here is a nice figure!}\label{fig:nice-fig}
-\end{figure}
-
-Reference a figure by its code chunk label with the \texttt{fig:} prefix, e.g., see Figure \ref{fig:nice-fig}. Similarly, you can reference tables generated from \texttt{knitr::kable()}, e.g., see Table \ref{tab:nice-tab}.
+\begin{verbatim}
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}
-  \FunctionTok{head}\NormalTok{(iris, }\DecValTok{20}\NormalTok{), }\AttributeTok{caption =} \StringTok{\textquotesingle{}Here is a nice table!\textquotesingle{}}\NormalTok{,}
-  \AttributeTok{booktabs =} \ConstantTok{TRUE}
+\FunctionTok{library}\NormalTok{(sf)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linking to GEOS 3.9.1, GDAL 3.2.1, PROJ 7.2.1; sf_use_s2() is TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{download\_layer }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(layer\_name, }\AttributeTok{save\_dir=}\StringTok{"input"}\NormalTok{) \{}
+\NormalTok{  githubURL }\OtherTok{\textless{}{-}}\NormalTok{ glue}\SpecialCharTok{::}\FunctionTok{glue}\NormalTok{(}\StringTok{"https://raw.githubusercontent.com/RWParsons/iTRAQI\_app/main/input/layers/\{layer\_name\}"}\NormalTok{)}
+  \FunctionTok{download.file}\NormalTok{(githubURL, }\FunctionTok{file.path}\NormalTok{(save\_dir, layer\_name), }\AttributeTok{method=}\StringTok{"curl"}\NormalTok{)}
+  \FunctionTok{readRDS}\NormalTok{(}\FunctionTok{file.path}\NormalTok{(save\_dir, layer\_name))}
+\NormalTok{\}}
+
+\NormalTok{raster\_layer }\OtherTok{\textless{}{-}} \FunctionTok{download\_layer}\NormalTok{(}\StringTok{"rehab\_raster.rds"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  raster}\SpecialCharTok{::}\FunctionTok{raster}\NormalTok{(., }\AttributeTok{layer=}\DecValTok{1}\NormalTok{)}
+
+\NormalTok{polygons\_layer }\OtherTok{\textless{}{-}} \FunctionTok{download\_layer}\NormalTok{(}\StringTok{"stacked\_SA1\_and\_SA2\_polygons\_year2016\_simplified.rds"}\NormalTok{)}
+\NormalTok{polygons\_layer }\OtherTok{\textless{}{-}}\NormalTok{ polygons\_layer[polygons\_layer}\SpecialCharTok{$}\NormalTok{SA\_level}\SpecialCharTok{==}\DecValTok{2}\NormalTok{, ] }\CommentTok{\# show SA2 regions for example}
+
+\NormalTok{marker\_locations }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{centre\_name=}\FunctionTok{c}\NormalTok{(}\StringTok{"Princess Alexandra Hospital (PAH)"}\NormalTok{, }\StringTok{"Townsville University Hospital"}\NormalTok{),}
+  \AttributeTok{x=}\FunctionTok{c}\NormalTok{(}\FloatTok{153.033519}\NormalTok{, }\FloatTok{146.762041}\NormalTok{),}
+  \AttributeTok{y=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{27.497374}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{19.320502}\NormalTok{)}
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+Here, in figure \ref{fig:leaflet-objects}, we make a leaflet map with the three object types. We will use these three functions, \texttt{addPolygons()}, \texttt{addRasterImage()}, and \texttt{addMarkers()} to add almost all of the content to our leaflet maps.
 
-\caption{\label{tab:nice-tab}Here is a nice table!}
-\centering
-\begin{tabular}[t]{rrrrl}
-\toprule
-Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species\\
-\midrule
-5.1 & 3.5 & 1.4 & 0.2 & setosa\\
-4.9 & 3.0 & 1.4 & 0.2 & setosa\\
-4.7 & 3.2 & 1.3 & 0.2 & setosa\\
-4.6 & 3.1 & 1.5 & 0.2 & setosa\\
-5.0 & 3.6 & 1.4 & 0.2 & setosa\\
-\addlinespace
-5.4 & 3.9 & 1.7 & 0.4 & setosa\\
-4.6 & 3.4 & 1.4 & 0.3 & setosa\\
-5.0 & 3.4 & 1.5 & 0.2 & setosa\\
-4.4 & 2.9 & 1.4 & 0.2 & setosa\\
-4.9 & 3.1 & 1.5 & 0.1 & setosa\\
-\addlinespace
-5.4 & 3.7 & 1.5 & 0.2 & setosa\\
-4.8 & 3.4 & 1.6 & 0.2 & setosa\\
-4.8 & 3.0 & 1.4 & 0.1 & setosa\\
-4.3 & 3.0 & 1.1 & 0.1 & setosa\\
-5.8 & 4.0 & 1.2 & 0.2 & setosa\\
-\addlinespace
-5.7 & 4.4 & 1.5 & 0.4 & setosa\\
-5.4 & 3.9 & 1.3 & 0.4 & setosa\\
-5.1 & 3.5 & 1.4 & 0.3 & setosa\\
-5.7 & 3.8 & 1.7 & 0.3 & setosa\\
-5.1 & 3.8 & 1.5 & 0.3 & setosa\\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addProviderTiles}\NormalTok{(}\StringTok{"CartoDB.VoyagerNoLabels"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# add a simple base map}
+  \FunctionTok{addPolygons}\NormalTok{(}
+    \AttributeTok{data=}\NormalTok{polygons\_layer,}
+    \AttributeTok{fillColor=}\StringTok{"Orange"}\NormalTok{,}
+    \AttributeTok{color=}\StringTok{"black"}\NormalTok{,}
+    \AttributeTok{weight=}\DecValTok{1}\NormalTok{,}
+    \AttributeTok{group=}\StringTok{"Polygons"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addRasterImage}\NormalTok{(}
+    \AttributeTok{x=}\NormalTok{raster\_layer,}
+    \AttributeTok{colors=}\StringTok{"YlOrRd"}\NormalTok{,}
+    \AttributeTok{group=}\StringTok{"Raster"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addMarkers}\NormalTok{(}
+    \AttributeTok{lng=}\NormalTok{marker\_locations}\SpecialCharTok{$}\NormalTok{x, }
+    \AttributeTok{lat=}\NormalTok{marker\_locations}\SpecialCharTok{$}\NormalTok{y,}
+    \AttributeTok{label=}\NormalTok{marker\_locations}\SpecialCharTok{$}\NormalTok{centre\_name,}
+    \AttributeTok{group=}\StringTok{"Points"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addLayersControl}\NormalTok{(}
+    \AttributeTok{position=}\StringTok{"topright"}\NormalTok{,}
+    \AttributeTok{baseGroups=}\FunctionTok{c}\NormalTok{(}\StringTok{"Polygons"}\NormalTok{, }\StringTok{"Raster"}\NormalTok{, }\StringTok{"Points"}\NormalTok{),}
+    \AttributeTok{options=}\FunctionTok{layersControlOptions}\NormalTok{(}\AttributeTok{collapsed =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{  ) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{interactive-maps_files/figure-latex/leaflet-objects-1} \caption{leaflet map with polygons, rasters and markers}\label{fig:leaflet-objects}
+\end{figure}
+
+Almost all of these objects were made before being used in the shiny app. Chapter \ref{building} will introduce the methods used to make them. Chapter \ref{shiny-intro} will introduce the basics of a shiny app. Chapter \ref{shiny-methods} will introduce the more specific methods that were used to construct the iTRAQI app itself.
 
 \hypertarget{building}{%
 \chapter{Creating the layers}\label{building}}
@@ -252,6 +299,23 @@ This chapter will cover the necessary steps to make layers which will be visuali
 
 \hypertarget{shiny-intro}{%
 \chapter{An app with a map}\label{shiny-intro}}
+
+This chapter will have a brief intro to shiny with a map:
+
+\begin{itemize}
+\tightlist
+\item
+  ui and server
+\item
+  reactivity
+\item
+  leaflet
+\item
+  leafletproxy
+\end{itemize}
+
+\hypertarget{shiny-methods}{%
+\chapter{An app with a map}\label{shiny-methods}}
 
 This chapter will have a brief intro to shiny with a map:
 

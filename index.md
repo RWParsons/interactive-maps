@@ -1,7 +1,7 @@
 --- 
 title: "Interactive maps with leaflet"
 author: "Rex Parsons"
-date: "`r Sys.Date()`"
+date: "2022-05-22"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
@@ -23,9 +23,4 @@ For a more comprehensive introduction to leaflet, see the
 For a more comprehensive introduction to shiny, see the 
 [Mastering Shiny book](https://mastering-shiny.org/)
 
-```{r include=FALSE}
-# automatically create a bib database for R packages
-knitr::write_bib(c(
-  .packages(), 'bookdown', 'knitr', 'rmarkdown'
-), 'packages.bib')
-```
+
