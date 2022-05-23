@@ -5,3 +5,135 @@ This chapter will cover the necessary steps to make layers which will be visuali
 * kriging
 * spatial joins
 * aggregating interpolations within polygons
+
+
+## Kriging
+
+Kriging is an interpolation method that we use for iTRAQI. We pass observed values with known outcomes and coordinates and use kriging to get predicted values for new coordinates (the rest of Queensland).
+
+
+### Data
+First, we will download the data that we used for acute care travel time. Each row in the data has a coordinate (x,y) and outcome that we will be using for interpolation (time)
+
+Table \@ref(tab:data-for-kriging) and figure \@ref(fig:map-of-data-for-kriging) show a preview of the data that we will be using.
+
+```{r data-for-kriging, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(leaflet)
+
+save_dir <- "input"
+githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/QLD_locations_with_RSQ_times_20220518.csv")
+download.file(githubURL, file.path(save_dir, "df_acute.csv"), method="curl")
+
+df_acute <- read.csv(file.path(save_dir, "df_acute.csv")) %>%
+  select(location, x, y, centre=acute_care_centre, time=acute_time)
+
+knitr::kable(
+  head(df_acute, 10), caption = 'A preview of the data used for kriging',
+  booktabs = TRUE
+)
+```
+
+```{r map-of-data-for-kriging, fig.cap='leaflet map with locations', out.width='100%', fig.width=12, warning=FALSE}
+leaflet() %>%
+  addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+  addCircleMarkers(
+    lng=df_acute$x, 
+    lat=df_acute$y,
+    popup=glue::glue( # customise your popups with html tags
+      "<b>Location: </b>{df_acute$location}<br>",
+      "<b>Time to acute care (minutes): </b>{df_acute$time}"),
+    radius=2, fillOpacity=0,
+  )
+```
+
+We will convert our data.frame into a spatial data.frame and load the gstat package as we will be using it for the kriging (`gstat::krige()`).
+
+```{r}
+library(sp)
+library(gstat)
+library(sf)
+
+coordinates(df_acute) <- ~ x + y
+```
+
+### Making a grid of values for interpolation
+
+Another key ingredient to do kriging is to have a grid of coordinates for which we want predictions (QLD).
+The code below achieves this by creating a grid across all coordinates of QLD and keeping only those which intersect with the QLD boundary polygon. The initial grid contains coordinates for all combinations of latitudes and longitudes in QLD (which includes a lot of water of the north east for which we don't need interpolated values). Figure \@ref(fig:map-of-coord-grid) shows the initial grid made using `sp::makegrid()` in blue and the intersect between this and the QLD boundary in orange.  We will use the values which are within the QLD boundary for kriging. 
+
+The cellsize we use here is large to save computation time (and to highlight a problem that we will come across very soon). This controls the resolution of the interpolation - the smaller the cellsize, the greater the spatial resolution. This is in degrees units (0.1 degree = 11.1km) so only having one prediction for every 11.1km² in QLD may mean that we miss out on some valuable information!
+
+```{r map-of-coord-grid, fig.cap='coordinates that we will use for kriging (initial grid in blue and those than intersect with QLD boundary in orange)', out.width='100%', fig.width=12, warning=FALSE}
+aus <- raster::getData('GADM', path="input", country = 'AUS', level = 1)
+qld_boundary <- aus[aus$NAME_1 == "Queensland",]
+qld_boundary_sf <- st_as_sfc(qld_boundary)
+
+cellsize <- 0.05
+grid <- makegrid(qld_boundary, cellsize = cellsize)
+pnts_sf <- st_as_sf(grid, coords = c('x1', 'x2'), crs = st_crs(qld_boundary))
+
+pnts_in_qld <- st_intersection(pnts_sf, qld_boundary_sf) %>% 
+  st_coordinates() %>%
+  as.data.frame()
+
+ggplot() + 
+  geom_point(data=grid, aes(x1, x2), col="blue") +
+  geom_point(data=pnts_in_qld, aes(X, Y), col="orange") + 
+  coord_equal() +
+  labs(
+    x="Longitude",
+    y="Latitude"
+  )
+
+```
+
+### Kriging (finally)
+Now we are ready to do the kriging. `gstat::krige()` requires that the `newdata` be of class `Spatial`, `sf`, or `stars`. Here, I specify the coordinates using `sp::coordinates()`. It also requires that you specify the variogram model within - here we use a circular model `vgm("Cir")` but there may be better choices for other data.
+
+Figure \@ref(fig:map-kriged-acute) shows the map with the interpolated values from kriging.
+
+```{r map-kriged-acute, fig.cap='coordinates that we will use for kriging (initial grid in blue and those than intersect with QLD boundary in orange)', out.width='100%', fig.width=12}
+lzn_vgm <- variogram(time ~ 1, df_acute)
+lzn_fit <- fit.variogram(lzn_vgm, model=vgm("Sph"))
+
+coordinates(pnts_in_qld) <- ~ X + Y
+
+kriged_layer <-
+  krige(
+    formula=time ~ 1, 
+    locations=df_acute,
+    newdata=pnts_in_qld,
+    model=lzn_fit
+  ) %>%
+  as.data.frame()
+
+ggplot(data=kriged_layer, aes(X, Y, col=var1.pred)) + 
+  geom_point() +
+  scale_colour_gradientn(colors=c("yellow", "orange", "red", "black")) +
+  coord_equal() +
+  labs(
+    x="Longitude",
+    y="Latitude"
+  )
+```
+
+### Making rasters
+
+Now we can turn our grid of interpolated values into the rasters that we can then use in a leaflet map. We use the `raster` package. Figure \@ref(leaflet-map-raster) shows our kriged output as a raster on a leaflet map, the same type of objects as what's used in iTRAQI.
+
+```{r leaflet-map-raster, fig.cap='coordinates that we will use for kriging (initial grid in blue and those than intersect with QLD boundary in orange)', out.width='100%', fig.width=12, warning=FALSE}
+raster_layer <- raster::rasterFromXYZ(kriged_layer, crs=4326, res=0.05)
+raster_layer <- raster::raster(raster_layer, layer=1) # layer=1 to select the prediction values rather than the variance
+
+leaflet() %>%
+  addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+  addRasterImage(x=raster_layer, colors="YlOrRd")
+```
+
+## Polygons and aggregations
+
+```{r}
+
+
+```
