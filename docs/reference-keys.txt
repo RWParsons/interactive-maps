@@ -5,7 +5,6 @@ fig:map-of-data-for-kriging
 fig:map-of-coord-grid
 fig:map-kriged-acute
 fig:leaflet-map-raster
-prerequisites
 intro
 leaflet-layers
 building
@@ -15,5 +14,8 @@ making-a-grid-of-values-for-interpolation
 kriging-finally
 making-rasters
 polygons-and-aggregations
+dissolving-polygons-to-get-sa2s
+simplifying-polygons-to-reduce-rendering-time-with-leaflet
+spatial-joins-and-aggregations
 shiny-intro
 shiny-methods

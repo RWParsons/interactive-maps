@@ -133,7 +133,108 @@ leaflet() %>%
 
 ## Polygons and aggregations
 
+We are going to download our polygons from the Australian Bureau of Statistics.
+
+The link to the downloads page for the 2016 Australian Statistical Geography Standard (ASGS) files are [here](https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1270.0.55.001July%202016?OpenDocument) and the particular file that we are going to download is the 'Queensland Mesh Blocks ASGS Ed 2016 Digital Boundaries in ESRI Shapefile Format'. 
+You will have to download the zipped file and unzip it somewhere locally. I've done so and saved it in the same directory as the other downloaded files and unzipped it into a folder there called 'qld_shape'. Having done that, I can import it using `st_read()`
+
+
+```{r}
+qld_SAs2016 <- st_read(file.path(save_dir, "qld_shape/MB_2016_QLD.shp"))
+
+head(qld_SAs2016)
+```
+
+This data has polygons for every Statistical Area level 1 (SA1) in Queensland but also details the SA2, SA3, and SA4 that that area is within. If we want to only use SA1's then we are fine to use the data here, but if we want to use these higher levels too, then we would either need (1) make a new object with dissolved boundaries within that higher level or (2) download more files from the ABS for those specific levels and filter to keep only Queensland. These files that we could use, say for SA2's are called 'Statistical Area Level 2 (SA2) ASGS Ed 2016 Digital Boundaries in ESRI Shapefile Format', available at that same [link](https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1270.0.55.001July%202016?OpenDocument).
+
+Since it's easy to filter, and reading this book is about learning new things (and my github repository is limited to 100mb), I'll show you the first approach that aggregates polygons within these higher levels.
+
+Before we make a function to aggregate within different levels, I'm going to rename the columns in the object so that they're all named consistently - you may have noticed the unique identifier for SA1's is called 'SA1_MAIN16' whereas for SA3's it's called 'SA3_CODE16'. I prefer 'CODE'.
 ```{r}
 
+qld_SAs2016 <-
+  rename(qld_SAs2016, SA1_CODE16=SA1_MAIN16, SA2_CODE16=SA2_MAIN16)
 
 ```
+
+
+### Dissolving polygons to get SA2s
+
+The function below will dissolve the boundaries for all the polygons within the SA-level that we pick. The work here is done by `rmapshaper::ms_dissolve()`. I'll use this to make separate objects for SA2s. Since this returns back only the geometry of the polygon and the name, I'll make the same change for my SA1s. By selecting only the code, I get the object with the code AND the geometry - unless I transform the object into a data.frame first, it will always keep the geometry.
+```{r}
+
+aggregate_by_SA <- function(qld_sf, SA_number){
+  sa_main <- glue::glue('SA{SA_number}_CODE16')
+  if(!sa_main %in% names(qld_sf)) return(message(sa_main, " was not found in polygon layer"))
+  message(glue::glue('----- grouping polygons within SA{SA_number} -----'))
+  rmapshaper::ms_dissolve(qld_sf, sa_main)
+}
+
+
+qld_SA2s <- aggregate_by_SA(qld_sf=qld_SAs2016, SA_number=2)
+
+qld_SA1s <- qld_SAs2016 %>% select(SA1_CODE16)
+head(qld_SA1s)
+head(qld_SA2s)
+
+```
+
+There are some empty geometries here, so we find (and then remove) these using `st_is_empty()`.
+```{r}
+qld_SA1s <- qld_SA1s[!st_is_empty(qld_SA1s), , drop=FALSE]
+qld_SA2s <- qld_SA2s[!st_is_empty(qld_SA2s), , drop=FALSE]
+```
+
+Run the code to become impatient and find out how long it takes leaflet to display such a detailed polygon layer.
+
+```{r, eval=F}
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA1s,
+    fillColor="Orange",
+    color="black",
+    weight=1
+  )
+```
+
+
+### Simplifying polygons to reduce rendering time with leaflet
+We need to do something about this - fortunately, we don't need all the incredible amounts of detail in the polygons for our map, so we can simplify them using `rmapshaper::ms_simplify()`.
+Simplifying the polygons can take a few minutes but it makes the maps much faster to display.
+
+```{r}
+qld_SA1s <- rmapshaper::ms_simplify(qld_SA1s, keep=0.03)
+qld_SA2s <- rmapshaper::ms_simplify(qld_SA2s, keep=0.03)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA1s,
+    fillColor="yellow",
+    color="black",
+    weight=1,
+    group="SA1"
+  ) %>%
+  addPolygons(
+    data=qld_SA2s,
+    fillColor="orange",
+    color="black",
+    weight=1,
+    group="SA2"
+  )%>%
+  addLayersControl(
+    position="topright",
+    baseGroups=c("SA1", "SA2"),
+    options=layersControlOptions(collapsed = FALSE)
+  )
+
+```
+
+
+### Spatial joins and aggregations
+
+
+
+
