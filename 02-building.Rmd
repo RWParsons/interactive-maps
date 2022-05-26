@@ -160,7 +160,7 @@ qld_SAs2016 <-
 
 ### Dissolving polygons to get SA2s
 
-The function below will dissolve the boundaries for all the polygons within the SA-level that we pick. The work here is done by `rmapshaper::ms_dissolve()`. I'll use this to make separate objects for SA2s. Since this returns back only the geometry of the polygon and the name, I'll make the same change for my SA1s. By selecting only the code, I get the object with the code AND the geometry - unless I transform the object into a data.frame first, it will always keep the geometry.
+The function below will dissolve the boundaries for all the polygons within the SA-level that we pick. The work here is done by `rmapshaper::ms_dissolve()`. I'll use this to make separate objects for SA2s and SA3s. Since this returns back only the geometry of the polygon and the name, I'll make the same change for my SA1s. By selecting only the code, I get the object with the code AND the geometry - unless I transform the object into a data.frame first, it will always keep the geometry.
 ```{r}
 
 aggregate_by_SA <- function(qld_sf, SA_number){
@@ -172,6 +172,7 @@ aggregate_by_SA <- function(qld_sf, SA_number){
 
 
 qld_SA2s <- aggregate_by_SA(qld_sf=qld_SAs2016, SA_number=2)
+qld_SA3s <- aggregate_by_SA(qld_sf=qld_SAs2016, SA_number=3)
 
 qld_SA1s <- qld_SAs2016 %>% select(SA1_CODE16)
 head(qld_SA1s)
@@ -183,6 +184,7 @@ There are some empty geometries here, so we find (and then remove) these using `
 ```{r}
 qld_SA1s <- qld_SA1s[!st_is_empty(qld_SA1s), , drop=FALSE]
 qld_SA2s <- qld_SA2s[!st_is_empty(qld_SA2s), , drop=FALSE]
+qld_SA3s <- qld_SA3s[!st_is_empty(qld_SA3s), , drop=FALSE]
 ```
 
 Run the code to become impatient and find out how long it takes leaflet to display such a detailed polygon layer.
@@ -207,6 +209,7 @@ Simplifying the polygons can take a few minutes but it makes the maps much faste
 ```{r}
 qld_SA1s <- rmapshaper::ms_simplify(qld_SA1s, keep=0.03)
 qld_SA2s <- rmapshaper::ms_simplify(qld_SA2s, keep=0.03)
+qld_SA3s <- rmapshaper::ms_simplify(qld_SA3s, keep=0.03)
 
 leaflet() %>%
   addTiles() %>%
@@ -223,10 +226,17 @@ leaflet() %>%
     color="black",
     weight=1,
     group="SA2"
-  )%>%
+  ) %>%
+  addPolygons(
+    data=qld_SA3s,
+    fillColor="red",
+    color="black",
+    weight=1,
+    group="SA3"
+  ) %>%
   addLayersControl(
     position="topright",
-    baseGroups=c("SA1", "SA2"),
+    baseGroups=c("SA1", "SA2", "SA3"),
     options=layersControlOptions(collapsed = FALSE)
   )
 
