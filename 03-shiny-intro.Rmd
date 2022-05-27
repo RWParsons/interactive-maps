@@ -64,6 +64,7 @@ These pages contain many panels that you can navigate between. Here's an app wit
 library(shiny)
 library(leaflet)
 library(tidyverse)
+library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
@@ -113,6 +114,7 @@ Unfortunately, this is a surprisingly annoying thing to do. If you change the he
 library(shiny)
 library(leaflet)
 library(tidyverse)
+library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
@@ -198,6 +200,7 @@ This takes one argument: the id of the map, which is the same as the output id (
 library(shiny)
 library(leaflet)
 library(tidyverse)
+library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%

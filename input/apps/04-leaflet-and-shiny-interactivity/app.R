@@ -1,6 +1,7 @@
 library(shiny)
 library(leaflet)
 library(tidyverse)
+library(sf)
 input_dir <- "../.."
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
