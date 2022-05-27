@@ -26,6 +26,9 @@ shinyApp(ui, server)
 
 ```
 
+This book will include many example shiny apps and accompanying code. However, since it'd be very time consuming to host all those apps independently, I will instead provide the code and sometimes an image of how the app displays. With every example app there will be a followup line of code with `shiny::runGitHub(...)` that you can use to run the app locally. If you run this line in R on your own computer, it will run the app in a way that you can then interact with it.
+
+
 The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as 'n' and we access it in the server by calling `input$n`. By accessing this input in such as way, within the expression used for `renderPlot()`, we are are asking the server side to update the plot every time that any inputs (`input$___`) used within it are updated.
 
 ```{r}
@@ -43,5 +46,12 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+```
+
+And here's your version to run locally.
+```{r eval=FALSE}
+
+
+
 
 ```
