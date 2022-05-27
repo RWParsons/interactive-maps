@@ -48,10 +48,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-And here's your version to run locally.
+(And here's your code to run the app locally)
 ```{r eval=FALSE}
-
-
-
-
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/01-example-app/")
 ```

@@ -220,6 +220,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb45-9"><a href="shiny-intro.html#cb45-9" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb45-10"><a href="shiny-intro.html#cb45-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-11"><a href="shiny-intro.html#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<p>This book will include many example shiny apps and accompanying code. However, since it’d be very time consuming to host all those apps independently, I will instead provide the code and sometimes an image of how the app displays. With every example app there will be a followup line of code with <code>shiny::runGitHub(...)</code> that you can use to run the app locally. If you run this line in R on your own computer, it will run the app in a way that you can then interact with it.</p>
 <p>The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as ‘n’ and we access it in the server by calling <code>input$n</code>. By accessing this input in such as way, within the expression used for <code>renderPlot()</code>, we are are asking the server side to update the plot every time that any inputs (<code>input$___</code>) used within it are updated.</p>
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="shiny-intro.html#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
 <span id="cb46-2"><a href="shiny-intro.html#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -236,8 +237,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb46-13"><a href="shiny-intro.html#cb46-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-14"><a href="shiny-intro.html#cb46-14" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <pre><code>## 
-## Listening on http://127.0.0.1:4453</code></pre>
+## Listening on http://127.0.0.1:6064</code></pre>
 <p><img src="interactive-maps_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>(And here’s your code to run the app locally)</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="shiny-intro.html#cb48-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/01-example-app/&quot;</span>)</span></code></pre></div>
 
 </div>
 </div>
