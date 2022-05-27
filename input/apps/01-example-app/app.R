@@ -6,7 +6,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  output$plot <- renderPlot({
+  output$plot <- renderPlot(expr={
     hist(x=rnorm(input$n))
   })
 }

@@ -4,6 +4,4 @@
 _book
 _bookdown_files
 rsconnect
-input/*.rds
-input/*.csv
 input/qld_shape

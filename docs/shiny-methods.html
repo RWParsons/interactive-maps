@@ -167,7 +167,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="building.html"><a href="building.html#polygons"><i class="fa fa-check"></i><b>2.2</b> Polygons</a>
 <ul>
-<li class="chapter" data-level="2.2.1" data-path="building.html"><a href="building.html#dissolving-polygons-to-get-sa2s"><i class="fa fa-check"></i><b>2.2.1</b> Dissolving polygons to get SA2s</a></li>
+<li class="chapter" data-level="2.2.1" data-path="building.html"><a href="building.html#dissolving-polygons-to-get-sa2s-and-sa3s"><i class="fa fa-check"></i><b>2.2.1</b> Dissolving polygons to get SA2s and SA3s</a></li>
 <li class="chapter" data-level="2.2.2" data-path="building.html"><a href="building.html#simplifying-polygons-to-reduce-rendering-time-with-leaflet"><i class="fa fa-check"></i><b>2.2.2</b> Simplifying polygons to reduce rendering time with leaflet</a></li>
 <li class="chapter" data-level="2.2.3" data-path="building.html"><a href="building.html#spatial-joins-and-aggregations"><i class="fa fa-check"></i><b>2.2.3</b> Spatial joins and aggregations</a></li>
 </ul></li>
@@ -175,6 +175,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3" data-path="shiny-intro.html"><a href="shiny-intro.html"><i class="fa fa-check"></i><b>3</b> An app with a map</a>
 <ul>
 <li class="chapter" data-level="3.1" data-path="shiny-intro.html"><a href="shiny-intro.html#a-bare-bones-shiny-app"><i class="fa fa-check"></i><b>3.1</b> A bare bones shiny app</a></li>
+<li class="chapter" data-level="3.2" data-path="shiny-intro.html"><a href="shiny-intro.html#leaflet-maps-in-shiny"><i class="fa fa-check"></i><b>3.2</b> Leaflet maps in shiny</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="shiny-intro.html"><a href="shiny-intro.html#filling-the-space"><i class="fa fa-check"></i><b>3.2.1</b> Filling the space</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="shiny-intro.html"><a href="shiny-intro.html#leaflet-vs-shiny-interactivity"><i class="fa fa-check"></i><b>3.3</b> Leaflet vs shiny interactivity</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="shiny-methods.html"><a href="shiny-methods.html"><i class="fa fa-check"></i><b>4</b> An app with a map</a></li>
 <li class="divider"></li>
@@ -268,6 +273,20 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>
