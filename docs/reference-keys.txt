@@ -13,9 +13,12 @@ data
 making-a-grid-of-values-for-interpolation
 kriging-finally
 making-rasters
-polygons-and-aggregations
+polygons
 dissolving-polygons-to-get-sa2s
 simplifying-polygons-to-reduce-rendering-time-with-leaflet
 spatial-joins-and-aggregations
+joins
+aggregations
 shiny-intro
+a-bare-bones-shiny-app
 shiny-methods

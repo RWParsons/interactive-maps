@@ -165,14 +165,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.1.3" data-path="building.html"><a href="building.html#kriging-finally"><i class="fa fa-check"></i><b>2.1.3</b> Kriging (finally)</a></li>
 <li class="chapter" data-level="2.1.4" data-path="building.html"><a href="building.html#making-rasters"><i class="fa fa-check"></i><b>2.1.4</b> Making rasters</a></li>
 </ul></li>
-<li class="chapter" data-level="2.2" data-path="building.html"><a href="building.html#polygons-and-aggregations"><i class="fa fa-check"></i><b>2.2</b> Polygons and aggregations</a>
+<li class="chapter" data-level="2.2" data-path="building.html"><a href="building.html#polygons"><i class="fa fa-check"></i><b>2.2</b> Polygons</a>
 <ul>
 <li class="chapter" data-level="2.2.1" data-path="building.html"><a href="building.html#dissolving-polygons-to-get-sa2s"><i class="fa fa-check"></i><b>2.2.1</b> Dissolving polygons to get SA2s</a></li>
 <li class="chapter" data-level="2.2.2" data-path="building.html"><a href="building.html#simplifying-polygons-to-reduce-rendering-time-with-leaflet"><i class="fa fa-check"></i><b>2.2.2</b> Simplifying polygons to reduce rendering time with leaflet</a></li>
 <li class="chapter" data-level="2.2.3" data-path="building.html"><a href="building.html#spatial-joins-and-aggregations"><i class="fa fa-check"></i><b>2.2.3</b> Spatial joins and aggregations</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="3" data-path="shiny-intro.html"><a href="shiny-intro.html"><i class="fa fa-check"></i><b>3</b> An app with a map</a></li>
+<li class="chapter" data-level="3" data-path="shiny-intro.html"><a href="shiny-intro.html"><i class="fa fa-check"></i><b>3</b> An app with a map</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="shiny-intro.html"><a href="shiny-intro.html#a-bare-bones-shiny-app"><i class="fa fa-check"></i><b>3.1</b> A bare bones shiny app</a></li>
+</ul></li>
 <li class="chapter" data-level="4" data-path="shiny-methods.html"><a href="shiny-methods.html"><i class="fa fa-check"></i><b>4</b> An app with a map</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -203,7 +206,40 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>leaflet</li>
 <li>leafletproxy</li>
 </ul>
+<div id="a-bare-bones-shiny-app" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> A bare bones shiny app<a href="shiny-intro.html#a-bare-bones-shiny-app" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The most basic shiny app has a user-interface (<code>ui</code>) and a back-end (<code>server</code>) side. We control what content appears where on within the ui, and we control all the clever interactivity and generated content on the server side.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="shiny-intro.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb45-2"><a href="shiny-intro.html#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="shiny-intro.html#cb45-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb45-4"><a href="shiny-intro.html#cb45-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb45-5"><a href="shiny-intro.html#cb45-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb45-6"><a href="shiny-intro.html#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="shiny-intro.html#cb45-7" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb45-8"><a href="shiny-intro.html#cb45-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb45-9"><a href="shiny-intro.html#cb45-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb45-10"><a href="shiny-intro.html#cb45-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-11"><a href="shiny-intro.html#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<p>The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as ‘n’ and we access it in the server by calling <code>input$n</code>. By accessing this input in such as way, within the expression used for <code>renderPlot()</code>, we are are asking the server side to update the plot every time that any inputs (<code>input$___</code>) used within it are updated.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="shiny-intro.html#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb46-2"><a href="shiny-intro.html#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="shiny-intro.html#cb46-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb46-4"><a href="shiny-intro.html#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">numericInput</span>(<span class="at">inputId=</span><span class="st">&#39;n&#39;</span>, <span class="at">label=</span><span class="st">&#39;sample size&#39;</span>, <span class="at">value=</span><span class="dv">10</span>),</span>
+<span id="cb46-5"><a href="shiny-intro.html#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plotOutput</span>(<span class="st">&#39;plot&#39;</span>)</span>
+<span id="cb46-6"><a href="shiny-intro.html#cb46-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-7"><a href="shiny-intro.html#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="shiny-intro.html#cb46-8" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb46-9"><a href="shiny-intro.html#cb46-9" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb46-10"><a href="shiny-intro.html#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hist</span>(<span class="at">x=</span><span class="fu">rnorm</span>(input<span class="sc">$</span>n))</span>
+<span id="cb46-11"><a href="shiny-intro.html#cb46-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb46-12"><a href="shiny-intro.html#cb46-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb46-13"><a href="shiny-intro.html#cb46-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-14"><a href="shiny-intro.html#cb46-14" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<pre><code>## 
+## Listening on http://127.0.0.1:4453</code></pre>
+<p><img src="interactive-maps_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 
+</div>
 </div>
             </section>
 

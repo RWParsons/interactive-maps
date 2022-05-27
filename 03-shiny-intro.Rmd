@@ -6,3 +6,42 @@ This chapter will have a brief intro to shiny with a map:
 * reactivity
 * leaflet
 * leafletproxy
+
+## A bare bones shiny app
+
+The most basic shiny app has a user-interface (`ui`) and a back-end (`server`) side. We control what content appears where on within the ui, and we control all the clever interactivity and generated content on the server side. 
+
+```{r, eval=FALSE}
+library(shiny)
+
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+
+```
+
+The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as 'n' and we access it in the server by calling `input$n`. By accessing this input in such as way, within the expression used for `renderPlot()`, we are are asking the server side to update the plot every time that any inputs (`input$___`) used within it are updated.
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  numericInput(inputId='n', label='sample size', value=10),
+  plotOutput('plot')
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    hist(x=rnorm(input$n))
+  })
+}
+
+shinyApp(ui, server)
+
+```

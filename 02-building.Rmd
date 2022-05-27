@@ -49,7 +49,7 @@ leaflet() %>%
 
 We will convert our data.frame into a spatial data.frame and load the gstat package as we will be using it for the kriging (`gstat::krige()`).
 
-```{r}
+```{r convert-data-to-spatialdf}
 library(sp)
 library(gstat)
 library(sf)
@@ -62,7 +62,7 @@ coordinates(df_acute) <- ~ x + y
 Another key ingredient to do kriging is to have a grid of coordinates for which we want predictions (QLD).
 The code below achieves this by creating a grid across all coordinates of QLD and keeping only those which intersect with the QLD boundary polygon. The initial grid contains coordinates for all combinations of latitudes and longitudes in QLD (which includes a lot of water of the north east for which we don't need interpolated values). Figure \@ref(fig:map-of-coord-grid) shows the initial grid made using `sp::makegrid()` in blue and the intersect between this and the QLD boundary in orange.  We will use the values which are within the QLD boundary for kriging. 
 
-The cellsize we use here is large to save computation time (and to highlight a problem that we will come across very soon). This controls the resolution of the interpolation - the smaller the cellsize, the greater the spatial resolution. This is in degrees units (0.1 degree = 11.1km) so only having one prediction for every 11.1km² in QLD may mean that we miss out on some valuable information!
+The cellsize we use here is large to save computation time (and to highlight a problem that we will come across very soon). This controls the resolution of the interpolation - the smaller the cellsize, the greater the spatial resolution. This is in degrees units (0.1 degree = 11.1km) so only having one prediction for every 11.1km² in QLD may mean that we miss out on some valuable information! (I'll come back to this!)
 
 ```{r map-of-coord-grid, fig.cap='coordinates that we will use for kriging (initial grid in blue and those than intersect with QLD boundary in orange)', out.width='100%', fig.width=12, warning=FALSE}
 aus <- raster::getData('GADM', path="input", country = 'AUS', level = 1)
@@ -131,7 +131,7 @@ leaflet() %>%
   addRasterImage(x=raster_layer, colors="YlOrRd")
 ```
 
-## Polygons and aggregations
+## Polygons
 
 We are going to download our polygons from the Australian Bureau of Statistics.
 
@@ -139,7 +139,7 @@ The link to the downloads page for the 2016 Australian Statistical Geography Sta
 You will have to download the zipped file and unzip it somewhere locally. I've done so and saved it in the same directory as the other downloaded files and unzipped it into a folder there called 'qld_shape'. Having done that, I can import it using `st_read()`
 
 
-```{r}
+```{r inspect-polygons-data}
 qld_SAs2016 <- st_read(file.path(save_dir, "qld_shape/MB_2016_QLD.shp"))
 
 head(qld_SAs2016)
@@ -150,7 +150,7 @@ This data has polygons for every Statistical Area level 1 (SA1) in Queensland bu
 Since it's easy to filter, and reading this book is about learning new things (and my github repository is limited to 100mb), I'll show you the first approach that aggregates polygons within these higher levels.
 
 Before we make a function to aggregate within different levels, I'm going to rename the columns in the object so that they're all named consistently - you may have noticed the unique identifier for SA1's is called 'SA1_MAIN16' whereas for SA3's it's called 'SA3_CODE16'. I prefer 'CODE'.
-```{r}
+```{r rename-codes}
 
 qld_SAs2016 <-
   rename(qld_SAs2016, SA1_CODE16=SA1_MAIN16, SA2_CODE16=SA2_MAIN16)
@@ -161,7 +161,7 @@ qld_SAs2016 <-
 ### Dissolving polygons to get SA2s
 
 The function below will dissolve the boundaries for all the polygons within the SA-level that we pick. The work here is done by `rmapshaper::ms_dissolve()`. I'll use this to make separate objects for SA2s and SA3s. Since this returns back only the geometry of the polygon and the name, I'll make the same change for my SA1s. By selecting only the code, I get the object with the code AND the geometry - unless I transform the object into a data.frame first, it will always keep the geometry.
-```{r}
+```{r dissolve-boundaries}
 
 aggregate_by_SA <- function(qld_sf, SA_number){
   sa_main <- glue::glue('SA{SA_number}_CODE16')
@@ -181,7 +181,7 @@ head(qld_SA2s)
 ```
 
 There are some empty geometries here, so we find (and then remove) these using `st_is_empty()`.
-```{r}
+```{r drop-empty-geometries}
 qld_SA1s <- qld_SA1s[!st_is_empty(qld_SA1s), , drop=FALSE]
 qld_SA2s <- qld_SA2s[!st_is_empty(qld_SA2s), , drop=FALSE]
 qld_SA3s <- qld_SA3s[!st_is_empty(qld_SA3s), , drop=FALSE]
@@ -189,8 +189,7 @@ qld_SA3s <- qld_SA3s[!st_is_empty(qld_SA3s), , drop=FALSE]
 
 Run the code to become impatient and find out how long it takes leaflet to display such a detailed polygon layer.
 
-```{r, eval=F}
-
+```{r unevaluated-slow-SA1-map, eval=F}
 leaflet() %>%
   addTiles() %>%
   addPolygons(
@@ -206,7 +205,7 @@ leaflet() %>%
 We need to do something about this - fortunately, we don't need all the incredible amounts of detail in the polygons for our map, so we can simplify them using `rmapshaper::ms_simplify()`.
 Simplifying the polygons can take a few minutes but it makes the maps much faster to display.
 
-```{r}
+```{r simplify-polygons, warning=FALSE}
 qld_SA1s <- rmapshaper::ms_simplify(qld_SA1s, keep=0.03)
 qld_SA2s <- rmapshaper::ms_simplify(qld_SA2s, keep=0.03)
 qld_SA3s <- rmapshaper::ms_simplify(qld_SA3s, keep=0.03)
@@ -244,7 +243,171 @@ leaflet() %>%
 
 
 ### Spatial joins and aggregations
+To get estimates and ranges for travel times within each SA1 and SA2 for iTRAQI, we aggregated the interpolated values within those polygons. To do this, we need to first (1) join the data that we made from kriging to the polygons data, and (2) aggregate the values within those areas to calculate the summary statistics that we want to show.
+
+Here is the data that we made from kriging previously.
+```{r show-kriging-data}
+head(select(kriged_layer, -var1.var), 5)
+```
 
 
+#### Joins
+
+We do this join using `sf::st_join()` but this requires that both the sf objects for the polygons and the kriging points share the same coordinates system. First, we need to make our kriging data into a spatial data.frame then set the coordinate reference system (crs) to match. The polygons that we downloaded from the ABS used the GDA94 reference system and this can be matched to [EPSG:4283 online](https://epsg.io/4283).
+
+```{r set-kriging-data-crs}
+kriged_df <- kriged_layer %>% select(-var1.var)
+coordinates(kriged_df) <- ~ X + Y
+kriged_sf <- st_as_sf(kriged_df)
+kriged_sf <- st_set_crs(kriged_sf, 4283)
+
+```
+
+Having asigned the appropriate crs, we can use `st_join` (if the crs of both objects isn't the same, `st_join` will throw an error).
+
+Now the resulting object has about the same number of features (rows) as we had in the interpolation data
+```{r spatial-join}
+qld_SA3s_joined <- st_join(qld_SA3s, kriged_sf)
+head(qld_SA3s_joined)
+
+nrow(qld_SA3s_joined)
+nrow(kriged_df)
+```
+#### Aggregations
+If you're familiar with the `dplyr::` ways of grouping and aggregating, then this step will be familiar to working with data.frames. To this larger dataset within the unique polygons, we use `group_by` and `summarise`.  Here, we will get the minimum, maximum, and median of the predicted values. 
+
+```{r unevaluated-slow-aggregate, eval=FALSE}
+
+qld_SA3s_aggregated <- 
+  qld_SA3s_joined %>%
+  group_by(SA3_CODE16) %>%
+  summarize(
+    min=min(var1.pred),
+    max=max(var1.pred),
+    median=median(var1.pred)
+  )
+
+```
+
+Unfortunately, this is incredibly slow for some reason! It's much faster to take the data out from the sf object, do the aggregations and then join it back to the original sf object before we did the join.
+
+```{r fast-aggregate}
+qld_SA3s_joined_df <- as.data.frame(qld_SA3s_joined) %>% select(-geometry)
+
+qld_SA3s_aggregated_df <- 
+  qld_SA3s_joined_df %>%
+  group_by(SA3_CODE16) %>%
+  summarize(
+    min=min(var1.pred),
+    max=max(var1.pred),
+    median=median(var1.pred)
+  )
+
+qld_SA3s_aggregated <- left_join(qld_SA3s, qld_SA3s_aggregated_df, by="SA3_CODE16") 
+
+```
+
+To check that these aggregations look right, lets make a map to visualise the medians across different SA3s.
+```{r aggregate-plot-1, warning=FALSE}
+fill_value <- qld_SA3s_aggregated$median
+pal <- colorNumeric("YlOrRd", domain=fill_value)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA3s_aggregated,
+    fillColor=pal(qld_SA3s_aggregated$median),
+    color="black",
+    weight=1,
+    fillOpacity = 0.8
+  )
+```
+
+Looks good... except?
+```{r aggregate-plot-2, warning=FALSE}
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA3s_aggregated,
+    fillColor=pal(qld_SA3s_aggregated$median),
+    color="black",
+    weight=1,
+    fillOpacity = 0.8
+  ) %>%
+  setView(153.026358, -27.468562, zoom=11)
+```
+
+There's a section which is greyed out - this means that the aggregations returned NA.
+
+Let's plot the coordinates which we have interpolated values for from kriging over the top.
+```{r aggregate-plot-3, warning=FALSE}
+kriged_coordinates <-
+  as.data.frame(coordinates(kriged_df)) %>% 
+  filter(X < 153.5, X > 152.3, Y < -27, Y > -28)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA3s_aggregated,
+    fillColor=pal(qld_SA3s_aggregated$median),
+    color="black",
+    weight=1,
+    fillOpacity = 0.8
+  ) %>%
+  setView(153.026358, -27.468562, zoom=11) %>%
+  addCircleMarkers(
+    lng=kriged_coordinates$X, 
+    lat=kriged_coordinates$Y,
+    radius=0.2
+  )
+```
 
 
+Looks like we missed the target with our the coordinates that we have interpolations for!
+
+<center>
+![](www/a-ha.gif){width=300px align=center}
+</center>
+
+There was a little primer to this problem when introducing the for kriging grid.
+There are a couple solutions to this (that I can think of):
+
+* Do a ludicrously granular grid for kriging so that we almost certainly have a point within every polygon, say every 50 square meters.
+* We add some points to the grid for kriging so that we ensure that we have at least 1 or more points within each polygon.
+
+For iTRAQI, we did the latter. SA1s can be pretty small, so I don't want to have to keep trying smaller and smaller cell sizes for the kriging grid until I don't get any NA's. It's easier (and a lot faster) to get the centroid (coordinate for the centre) of every polygon and append this to the grid we use for kriging.
+
+You can get the centroid of each polygon by using `sf::st_centroid()` and the coordinates out of this object with `st_coordinates()`. 
+
+In the map below, we get these centroids and add them as additional coordinates to the map in red.
+
+```{r aggregate-plot-4, warning=FALSE}
+centroids <- st_centroid(qld_SA3s, of_largest_polygon=TRUE)
+centroid_coords <- as.data.frame(st_coordinates(centroids))
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA3s_aggregated,
+    fillColor=pal(qld_SA3s_aggregated$median),
+    color="black",
+    weight=1,
+    fillOpacity = 0.8
+  ) %>%
+  setView(153.026358, -27.468562, zoom=11) %>%
+  addCircleMarkers(
+    lng=kriged_coordinates$X, 
+    lat=kriged_coordinates$Y,
+    radius=0.2
+  ) %>%
+  addCircleMarkers(
+    lng=centroid_coords$X, 
+    lat=centroid_coords$Y,
+    color="red",
+    radius=0.2
+  )
+```
+
+They're on target! The remaining steps would be to append this to the grid used for kriging, repeat the spatial join and aggregate within polygons.
+
+However, I'm going to skip these steps and get straight into the shiny app development using the polygons that I've already made for iTRAQI.
