@@ -1,7 +1,22 @@
-library(shiny)
-library(leaflet)
-library(tidyverse)
-library(sf)
+pkgs <- c("shiny", "leaflet", "tidyverse", "sf", "glue")
+
+unavailable_pkgs <- c()
+for (pkg in pkgs) {
+  if(!requireNamespace(pkg, quietly = TRUE)) {
+    unavailable_pkgs <- c(unavailable_pkgs, pkg)
+  } else {
+    library(pkg, character.only = TRUE)
+  }
+}
+
+if (length(unavailable_pkgs) != 0) {
+  stop(
+    "The following pkgs are required to run this example\n",
+    "Please run the code below to install them and try again:\n\n",
+    "install.packages(", paste0(paste0("'", unavailable_pkgs, "'"), collapse=", "), ")"
+  )
+}
+
 input_dir <- "../.."
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
@@ -70,7 +85,7 @@ server <- function(input, output, session) {
       addCircleMarkers(
         lng=towns$x,
         lat=towns$y,
-        popup=glue::glue("<b>Location:</b> {towns$acute_care_centre}"),
+        popup=glue("<b>Location:</b> {towns$acute_care_centre}"),
         radius=2,
         fillOpacity=0,
         group="Towns"
