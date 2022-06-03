@@ -1,0 +1,26 @@
+# iTRAQI tricks {#iTRAQI-tricks}
+
+This is the beginning of the second part of the book, where all the iTRAQI tricks are detailed.
+
+* Chapter \@ref(async-loading): Asynchronous loading and distracting your user
+* Mixing continuous and discrete colour palettes
+* Layer selection from the control panel
+  * `addLayersControl` vs controls in shiny
+  * Updating the map
+  * Updating the legend
+* Polygon filters
+  * Filters from checkboxes
+  * Adding all/none to checkboxes
+* Updating polygon aesthetics
+  * `layerId` vs `group`
+  * Adding javascript to leaflet
+  * Updating fillColor and labels
+* Showing a plot in parallel to your map
+  * Matching your colour palette between the map and plot
+  * Interact with your map from the plot
+* Getting predictions on `map_click()`
+* Tours
+  * Associating tour progression to map content
+  * Delayed content
+* Information page
+

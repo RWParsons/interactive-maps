@@ -24,4 +24,7 @@ a-bare-bones-shiny-app
 leaflet-maps-in-shiny
 filling-the-space
 leaflet-vs-shiny-interactivity
-shiny-methods
+iTRAQI-tricks
+async-loading
+distracting-your-user
+asynchronous-loading

@@ -88,4 +88,4 @@ leaflet() %>%
 
 ```
 
-Almost all of these objects were made before being used in the shiny app. Chapter \@ref(building) will introduce the methods used to make them. Chapter \@ref(shiny-intro) will introduce the basics of a shiny app. Chapter \@ref(shiny-methods) will introduce the more specific methods that were used to construct the iTRAQI app itself.
+Almost all of these objects were made before being used in the shiny app. Chapter \@ref(building) will introduce the methods used to make them. Chapter \@ref(shiny-intro) will introduce the basics of a shiny app. The following chapters will introduce the more specific methods that were used to construct the iTRAQI app itself.
