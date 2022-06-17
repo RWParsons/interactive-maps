@@ -1,0 +1,173 @@
+# All things colourful {#colour-palettes}
+
+This chapter will cover:
+
+- colour palettes for leaflet
+  - continuous
+  - discrete
+  - a mix (?)
+- legends in leaflet
+- matching `ggplot2` colour scales to the leaflet colour palettes
+- putting it all together in the shiny app
+  - reactive display of legends
+  - pairing your ggplot scales to your map
+
+## leaflet colours
+
+For these examples, we will use the polygons and rasters from iTRAQI.
+
+The following chunk downloads these layers (just the same as in chapter \@ref(intro) but using SA1s this time).
+
+
+```{r}
+library(tidyverse)
+library(sf)
+download_layer <- function(layer_name, save_dir="input") {
+  githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/layers/{layer_name}")
+  download.file(githubURL, file.path(save_dir, layer_name), method="curl")
+  readRDS(file.path(save_dir, layer_name))
+}
+
+raster_layer <- download_layer("rehab_raster.rds") %>%
+  raster::raster(., layer=1)
+
+polygons_layer <- download_layer("stacked_SA1_and_SA2_polygons_year2016_simplified.rds")
+```
+
+### Palettes for discrete variables
+For discrete/factor variables, we can use `colorFactor` to create a palette for leaflet. The example below creates a very similar map to the ABS and we use the same one in the tour tab of the iTRAQI app (except that was using SA1s rather than SA2s).
+
+```{r}
+palFac <- colorFactor("Greens", levels=0:4, ordered=TRUE, reverse=TRUE)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=polygons_layer[polygons_layer$SA_level==2, ],
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palFac(polygons_layer[polygons_layer$SA_level==2, ]$ra)
+  )
+
+```
+
+In the code above, we are passing a vector of hex codes as the `fillColor` argument: one for each polygon.
+
+```{r}
+unique(palFac(polygons_layer$ra))
+
+length(palFac(polygons_layer$ra)) == nrow(polygons_layer)
+```
+
+For the iTRAQI index, we used a range of colours and did this by specifying a hex code for each one specifically.
+
+First, we need to add the index to the `polygons_layer`. 
+
+
+```{r}
+
+iTRAQI_acute_breaks <- c(-Inf, 1, 2, 4, 6, Inf)
+iTRAQI_rehab_breaks <- c(-Inf, 1, 2, 4, 6, Inf)
+
+get_iTRAQI_index <- function(acute_mins, rehab_mins){
+  acute_cat <- cut(acute_mins/60, breaks=iTRAQI_acute_breaks)
+  rehab_cat <- cut(rehab_mins/60, breaks=iTRAQI_rehab_breaks)
+  
+  acute_label <- as.numeric(acute_cat)
+  rehab_label <- LETTERS[rehab_cat]
+  
+  index_value <- paste0(acute_label, rehab_label)
+  ifelse(index_value == "NANA", NA, index_value)
+}
+
+polygons_layer <- polygons_layer %>%
+  mutate(index=get_iTRAQI_index(value_acute, value_rehab))
+
+
+# Create a copy of the polygons layer with only SA2s for faster displaying maps
+qld_SA2s <- filter(polygons_layer, SA_level==2)
+```
+
+
+Here are the colours we used for each of levels in the index
+.
+```{r}
+index_palette_url <- RCurl::getURL("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/index_palette.csv")
+
+index_palette <- read.csv(text=index_palette_url) %>% 
+  select(Acute, Rehab, hex=hex2) %>% 
+  cbind(., iTRAQI_bins=(na.omit(unique(polygons_layer$index)) %>% sort()))
+
+knitr::kable((index_palette))
+
+```
+
+No we can create the palette in the same was now as we did before with the remoteness map.
+```{r}
+
+paliTRAQI <- colorFactor(
+  index_palette$hex,
+  levels=iTRAQI_bins,
+  ordered=FALSE
+)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=paliTRAQI(qld_SA2s$index)
+  )
+
+```
+
+### Palettes for continuous variables
+
+For the rasters, we used continuous colour scales.
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer
+  )
+```
+
+Since the raster is a grid of values, we don't need to pass a huge vector of hex codes, but instead we need to pass a function which can take that value and return a hex code.
+
+But still, there are options. We could use a binned colour scheme to make an isochrone type map as below.
+```{r}
+# bins <- c(0, 30, 60, 120, 180, 240, 300, 360, 900, 1200)
+palBin <- colorBin("YlOrRd", domain = 0:1200, bins=bins, na.color="transparent")
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palBin
+  )
+
+```
+
+
+And our other option is to use a continuous colour scale.
+```{r}
+palNum <- colorNumeric("YlOrRd", domain=0:1200, na.color="transparent")
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palNum
+  )
+```
+
+
+
+
+
+
+
+

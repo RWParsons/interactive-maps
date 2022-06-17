@@ -43,10 +43,14 @@ Below is a list of packages that will be used. You can run the code to install t
 pkgs <- c(
   "tidyverse",
   "sf",
+  "sp",
+  "gstat",
   "shiny",
   "leaflet",
   "raster",
-  "rmapshaper"
+  "rmapshaper",
+  "RCurl",
+  "glue"
 )
 
 required_packages <- pkgs[!pkgs %in% installed.packages()]

@@ -22,7 +22,7 @@ library(tidyverse)
 library(leaflet)
 
 save_dir <- "input"
-githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/QLD_locations_with_RSQ_times_20220518.csv")
+githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/QLD_locations_with_RSQ_times_20220615.csv")
 download.file(githubURL, file.path(save_dir, "df_towns.csv"), method="curl")
 
 df_towns <- read.csv(file.path(save_dir, "df_towns.csv")) %>%

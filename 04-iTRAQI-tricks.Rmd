@@ -3,7 +3,7 @@
 This is the beginning of the second part of the book, where all the iTRAQI tricks are detailed.
 
 * Chapter \@ref(async-loading): Asynchronous loading and distracting your user
-* Mixing continuous and discrete colour palettes
+* Chapter \@ref(colour-palettes): Mixing continuous and discrete colour palettes
 * Layer selection from the control panel
   * `addLayersControl` vs controls in shiny
   * Updating the map

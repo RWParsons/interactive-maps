@@ -28,3 +28,8 @@ iTRAQI-tricks
 async-loading
 distracting-your-user
 asynchronous-loading
+colour-palettes
+colour-palettes-in-leaflet
+leaflet-colours
+palettes-for-discrete-variables
+palettes-for-continuous-variables
