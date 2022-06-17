@@ -1,0 +1,8 @@
+# Colours with leaflet {#shiny-colours}
+
+This chapter will cover:
+- putting the previous two chapters all together in the shiny app and getting them to talk to each other
+
+For these examples, we will use the polygons and rasters from iTRAQI.
+
+The following chunk downloads these layers (just the same as in chapter \@ref(intro) but using SA1s this time).

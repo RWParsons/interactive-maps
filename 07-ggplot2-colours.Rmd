@@ -1,4 +1,4 @@
-# Colours with leaflet {#ggplot-colours}
+# Colours with leaflet {#ggplot2-colours}
 
 This chapter will cover:
 - matching `ggplot2` colour scales to the leaflet colour palettes

@@ -252,3 +252,86 @@ leaflet() %>%
 
 ```
 
+
+## Legends with leaflet
+
+There are a couple ways that you can make legends in leaflet. The first is to use leaflet's `addLegend()`. This works well for the binned or continuous colour scale, but it won't work for the mixed colour scale.
+
+```{r, warning=F}
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palBin
+  ) %>%
+  addLegend(
+    position="bottomright",
+    pal=palBin,
+    values=0:1200
+  )
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palNum(qld_SA2s$value_rehab)
+  ) %>%
+  addLegend(
+    position="bottomright",
+    pal=palNum,
+    values=0:1200
+  )
+```
+
+The biggest problem here is when we want to add the continuous scale to the rehab map within iTRAQI. Here, we used a continuous legend from 0 to 20 hours, and the custom palette we made (`palNumMixed`). Since we can't pass this palette to `addLegend`, we have to get help from a new package, `{leaflegend}`. This package allows you to add more customisable legends to your leaflet map, and it also lets us pass our hacky colour scale we made to generate the legend. 
+
+Firstly, to make the legend display in hours, we make a(nother) parent function `palNumMixHours` which wraps `palNumMixed` but converts from minutes to hours. This way, we can add colours to the actual map with `palNumMix` but create the legend using `palNumMixHours` so that the values on the legend are in hours.
+
+```{r, warning=F}
+library(leaflegend)
+
+palNumMixHours <- function(x) palNumMix(x*60)
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palNumMix
+  ) %>% 
+  addLegendNumeric(
+    pal=palNumMixHours,
+    position="topright",
+    height=250,
+    width=24,
+    bins=10,
+    value=c(-0.01, 0:20, 20.1),
+    htmltools::tagList(tags$div("Time to care (hours)"), tags$br())
+  )
+```
+
+
+The legends on the main map of iTRAQI also use leaflegend but this was sort of optional. They're very similar to legend we made using `addLegend` for the raster above but since we used `leaflegend` for the rehab map, we thought it'd be best to keep the styling consistent. Also, being able to format the size and title of the legend easily with leaflegend was a nice feature. Here's what we used for the non-index layers of the main map.
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palNum(qld_SA2s$value_rehab)
+  ) %>% 
+  addLegendBin(
+    opacity=1,
+    position="topright",
+    pal=palBin,
+    values=0:900,
+    title=htmltools::tagList(tags$div("Time to care (minutes)"), tags$br())
+  )
+```
+
+If you're interested in incorporating an interactive plot alongside your map as we did, chapter \@ref(ggplot2-colours) will help you match your colour scales between your ggplot and maps. If not, you can skip to \@ref(shiny-colours).
