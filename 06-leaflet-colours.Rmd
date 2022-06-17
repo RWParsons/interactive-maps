@@ -1,0 +1,254 @@
+# Colours with leaflet {#leaflet-colours}
+
+This chapter will cover:
+
+- colour palettes for leaflet
+  - continuous
+  - discrete
+  - a mix (?)
+- legends in leaflet
+
+## Colour scales with leaflet
+For these examples, we will use the polygons and rasters from iTRAQI.
+
+The following chunk downloads these layers (just the same as in chapter \@ref(intro) but using SA1s this time).
+
+
+```{r}
+library(tidyverse)
+library(sf)
+download_layer <- function(layer_name, save_dir="input") {
+  githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/layers/{layer_name}")
+  download.file(githubURL, file.path(save_dir, layer_name), method="curl")
+  readRDS(file.path(save_dir, layer_name))
+}
+
+raster_layer <- download_layer("rehab_raster.rds") %>%
+  raster::raster(., layer=1)
+
+polygons_layer <- download_layer("stacked_SA1_and_SA2_polygons_year2016_simplified.rds")
+```
+
+### Palettes for discrete variables
+For discrete/factor variables, we can use `colorFactor` to create a palette for leaflet. The example below creates a very similar map to the ABS and we use the same one in the tour tab of the iTRAQI app (except that was using SA1s rather than SA2s).
+
+```{r}
+palFac <- colorFactor("Greens", levels=0:4, ordered=TRUE, reverse=TRUE)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=polygons_layer[polygons_layer$SA_level==2, ],
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palFac(polygons_layer[polygons_layer$SA_level==2, ]$ra)
+  )
+
+```
+
+In the code above, we are passing a vector of hex codes as the `fillColor` argument: one for each polygon.
+
+```{r}
+unique(palFac(polygons_layer$ra))
+
+length(palFac(polygons_layer$ra)) == nrow(polygons_layer)
+```
+
+For the iTRAQI index, we used a range of colours and did this by specifying a hex code for each one specifically.
+
+First, we need to add the index to the `polygons_layer`. 
+
+
+```{r}
+
+iTRAQI_acute_breaks <- c(-Inf, 1, 2, 4, 6, Inf)
+iTRAQI_rehab_breaks <- c(-Inf, 1, 2, 4, 6, Inf)
+
+get_iTRAQI_index <- function(acute_mins, rehab_mins){
+  acute_cat <- cut(acute_mins/60, breaks=iTRAQI_acute_breaks)
+  rehab_cat <- cut(rehab_mins/60, breaks=iTRAQI_rehab_breaks)
+  
+  acute_label <- as.numeric(acute_cat)
+  rehab_label <- LETTERS[rehab_cat]
+  
+  index_value <- paste0(acute_label, rehab_label)
+  ifelse(index_value == "NANA", NA, index_value)
+}
+
+polygons_layer <- polygons_layer %>%
+  mutate(index=get_iTRAQI_index(value_acute, value_rehab))
+
+
+# Create a copy of the polygons layer with only SA2s for faster displaying maps
+qld_SA2s <- filter(polygons_layer, SA_level==2)
+```
+
+
+Here are the colours we used for each of levels in the index.
+
+```{r}
+index_palette_url <- RCurl::getURL("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/index_palette.csv")
+
+index_palette <- read.csv(text=index_palette_url) %>% 
+  select(Acute, Rehab, hex=hex2) %>% 
+  cbind(., iTRAQI_bins=(na.omit(unique(polygons_layer$index)) %>% sort()))
+
+knitr::kable((index_palette))
+
+```
+
+No we can create the palette in the same was now as we did before with the remoteness map.
+
+```{r}
+
+paliTRAQI <- colorFactor(
+  index_palette$hex,
+  levels=index_palette$iTRAQI_bins,
+  ordered=FALSE
+)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=paliTRAQI(qld_SA2s$index)
+  )
+
+```
+
+### Palettes for continuous variables
+
+For the rasters, we used continuous colour scales.
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer
+  )
+```
+
+Since the raster is a grid of values, we don't need to pass a huge vector of hex codes, but instead we need to pass a function which can take that value and return a hex code.
+
+But still, there are options. We could use a binned colour scheme to make an isochrone type map as below.
+```{r}
+bins <- c(0, 30, 60, 120, 180, 240, 300, 360, 900, 1200)
+palBin <- colorBin("YlOrRd", domain = 0:1200, bins=bins, na.color="transparent")
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palBin
+  )
+
+```
+
+
+And our other option is to use a continuous colour scale.
+```{r}
+palNum <- colorNumeric("YlOrRd", domain=0:1200, na.color="transparent")
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palNum
+  )
+```
+
+### A mix of continuous and discrete colour scales
+
+This may sound like an odd thing to want to do: in the iTRAQI app, you may notice that we use the same legend and colour scale for all of our time-to-care maps, and that the scale on the legend is not linear from 0 to 1200 minutes. Fortunately, we can make make a (hacky) mix of both `colorbin` and `colorNumeric` to give specified breaks to a continuous scale. (We can also display the legend as if it were the `colorBin` legend.)
+
+The first thing to consider is that the palette passed to colors argument doesn't need to be made with a single palette from leaflet. Instead, we can merge many within a parent function. Here's a smaller example.
+
+```{r}
+palNumLow <- colorNumeric("Greens", domain=0:300)
+palNumHigh <- colorNumeric("Reds", domain=300:1200)
+
+pal_combined <- function(x) {
+  case_when(
+    x <=300 ~ palNumLow(x),
+    x >300 ~ palNumHigh(x),
+    TRUE ~ "transparent"
+  )
+}
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=pal_combined
+  )
+
+```
+
+What a truly hideous colour scale! Here, we used one colour scale ("Greens") for values between 0 and 300 minutes, and another scale ("Reds") for values from 300 to 1200! The good thing is that we can now mix and match scales any which way we desire, and combine several numeric scales across unevenly spaced breaks to create a single, continuous palette which doesn't get washed out due to the extremes in the domain.  Note that in our drive times here, we have times from the Torres Strait which were around 1200 minutes! Using any of the sequential colour palettes would mean that the differences across most of mainland QLD would appear to be smaller than they are as we would require the domain of the palette to accomodate for these extremely large times. 
+
+In the code below, we start out by using the `bins` that we had defined for the `palBin()`. We can then use the sequence of colours from the palBin, at each bin, as the end-range colours within a range of `colorNumeric`'s. By doing this, `palNum1` is now a continuous colour scale from the first to the second level of `palBin`, `palNum2` is a continuous scale from the second to third level of `palBin`.... For the last one, `palNum9`, we go from the deepest colour within the `palBin` to black. 
+
+```{r}
+palBin <- colorBin("YlOrRd", domain = min(bins):max(bins), bins=bins, na.color="transparent")
+
+palNum1 <- colorNumeric(c(palBin(bins[1]), palBin(bins[2])), domain=0:30, na.color="transparent")
+palNum2 <- colorNumeric(c(palBin(bins[2]), palBin(bins[3])), domain=30:60, na.color="transparent")
+palNum3 <- colorNumeric(c(palBin(bins[3]), palBin(bins[4])), domain=60:120, na.color="transparent")
+palNum4 <- colorNumeric(c(palBin(bins[4]), palBin(bins[5])), domain=120:180, na.color="transparent")
+palNum5 <- colorNumeric(c(palBin(bins[5]), palBin(bins[6])), domain=180:240, na.color="transparent")
+palNum6 <- colorNumeric(c(palBin(bins[6]), palBin(bins[7])), domain=240:300, na.color="transparent")
+palNum7 <- colorNumeric(c(palBin(bins[7]), palBin(bins[8])), domain=300:360, na.color="transparent")
+palNum8 <- colorNumeric(c(palBin(bins[8]), palBin(bins[9])), domain=360:900, na.color="transparent")
+palNum9 <- colorNumeric(c(palBin(bins[9]), "#000000"), domain=900:1200, na.color="transparent")
+
+
+```
+
+We can then combine all of these within a parent function which can then be called with any value. Since `palNum9` approaches values of 1200 and blackness, all values above 1200 are black.
+```{r}
+palNumMix <- function(x){
+  case_when(
+    x < 30  ~ palNum1(x),
+    x < 60  ~ palNum2(x),
+    x < 120 ~ palNum3(x),
+    x < 180 ~ palNum4(x),
+    x < 240 ~ palNum5(x),
+    x < 300 ~ palNum6(x),
+    x < 360 ~ palNum7(x),
+    x < 900 ~ palNum8(x),
+    x <1200 ~ palNum9(x),
+    x >=1200~ "#000000",
+    TRUE ~ "transparent"
+  )
+}
+
+```
+
+
+The end result is a much more appropriate colour scale than either the binned or (the original) continuous colour scales.
+
+For iTRAQI, we used this colour scale for both the rasters and the polygons (except for the index).
+
+```{r, warning=F}
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(
+    x=raster_layer,
+    colors=palNumMix
+  )
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palNumMix(qld_SA2s$value_rehab)
+  )
+
+```
+

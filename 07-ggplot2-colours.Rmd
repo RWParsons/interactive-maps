@@ -1,0 +1,8 @@
+# Colours with leaflet {#ggplot-colours}
+
+This chapter will cover:
+- matching `ggplot2` colour scales to the leaflet colour palettes
+
+For these examples, we will use the polygons and rasters from iTRAQI.
+
+The following chunk downloads these layers (just the same as in chapter \@ref(intro) but using SA1s this time).
