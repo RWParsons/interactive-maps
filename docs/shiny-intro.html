@@ -23,7 +23,7 @@
 <meta name="author" content="Rex Parsons" />
 
 
-<meta name="date" content="2022-06-17" />
+<meta name="date" content="2022-06-23" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -197,8 +197,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="6.2" data-path="leaflet-colours.html"><a href="leaflet-colours.html#legends-with-leaflet"><i class="fa fa-check"></i><b>6.2</b> Legends with leaflet</a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html"><i class="fa fa-check"></i><b>7</b> Colours with leaflet</a></li>
-<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Colours with leaflet</a></li>
+<li class="chapter" data-level="7" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html"><i class="fa fa-check"></i><b>7</b> Using a leaflet palette in ggplot</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#basic-scatterplot-with-ggplot2"><i class="fa fa-check"></i><b>7.1</b> Basic scatterplot with <code>{ggplot2}</code></a></li>
+<li class="chapter" data-level="7.2" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-the-itraqi-colours"><i class="fa fa-check"></i><b>7.2</b> Colouring the scatterplot with the iTRAQI colours</a></li>
+<li class="chapter" data-level="7.3" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-our-custom-palettes-colours"><i class="fa fa-check"></i><b>7.3</b> Colouring the scatterplot with our custom-palette’s colours</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Getting your map layers and colours communicating</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -259,7 +264,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb46-13"><a href="shiny-intro.html#cb46-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-14"><a href="shiny-intro.html#cb46-14" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <pre><code>## 
-## Listening on http://127.0.0.1:4707</code></pre>
+## Listening on http://127.0.0.1:7811</code></pre>
 <p><img src="interactive-maps_files/figure-html/01-example-app-1.png" width="672" /></p>
 <p>(And here’s your code to run the app locally)</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="shiny-intro.html#cb48-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/01-example-app/&quot;</span>)</span></code></pre></div>

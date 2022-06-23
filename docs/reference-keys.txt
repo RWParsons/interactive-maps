@@ -35,4 +35,7 @@ palettes-for-continuous-variables
 a-mix-of-continuous-and-discrete-colour-scales
 legends-with-leaflet
 ggplot2-colours
+basic-scatterplot-with-ggplot2
+colouring-the-scatterplot-with-the-itraqi-colours
+colouring-the-scatterplot-with-our-custom-palettes-colours
 shiny-colours

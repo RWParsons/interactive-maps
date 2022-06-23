@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 8 Colours with leaflet | Interactive maps with leaflet</title>
+  <title>Chapter 8 Getting your map layers and colours communicating | Interactive maps with leaflet</title>
   <meta name="description" content="This is a guide on how to make interactive maps for shiny apps with leaflet. It covers the methods used to developed the iTRAQI app." />
   <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 8 Colours with leaflet | Interactive maps with leaflet" />
+  <meta property="og:title" content="Chapter 8 Getting your map layers and colours communicating | Interactive maps with leaflet" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="This is a guide on how to make interactive maps for shiny apps with leaflet. It covers the methods used to developed the iTRAQI app." />
   <meta name="github-repo" content="RWParsons/interactive-maps" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 8 Colours with leaflet | Interactive maps with leaflet" />
+  <meta name="twitter:title" content="Chapter 8 Getting your map layers and colours communicating | Interactive maps with leaflet" />
   
   <meta name="twitter:description" content="This is a guide on how to make interactive maps for shiny apps with leaflet. It covers the methods used to developed the iTRAQI app." />
   
@@ -23,7 +23,7 @@
 <meta name="author" content="Rex Parsons" />
 
 
-<meta name="date" content="2022-06-17" />
+<meta name="date" content="2022-06-23" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -197,8 +197,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="6.2" data-path="leaflet-colours.html"><a href="leaflet-colours.html#legends-with-leaflet"><i class="fa fa-check"></i><b>6.2</b> Legends with leaflet</a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html"><i class="fa fa-check"></i><b>7</b> Colours with leaflet</a></li>
-<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Colours with leaflet</a></li>
+<li class="chapter" data-level="7" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html"><i class="fa fa-check"></i><b>7</b> Using a leaflet palette in ggplot</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#basic-scatterplot-with-ggplot2"><i class="fa fa-check"></i><b>7.1</b> Basic scatterplot with <code>{ggplot2}</code></a></li>
+<li class="chapter" data-level="7.2" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-the-itraqi-colours"><i class="fa fa-check"></i><b>7.2</b> Colouring the scatterplot with the iTRAQI colours</a></li>
+<li class="chapter" data-level="7.3" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-our-custom-palettes-colours"><i class="fa fa-check"></i><b>7.3</b> Colouring the scatterplot with our custom-palette’s colours</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Getting your map layers and colours communicating</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -220,11 +225,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
             <section class="normal" id="section-">
 <div id="shiny-colours" class="section level1 hasAnchor" number="8">
-<h1><span class="header-section-number">Chapter 8</span> Colours with leaflet<a href="shiny-colours.html#shiny-colours" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This chapter will cover:
-- putting the previous two chapters all together in the shiny app and getting them to talk to each other</p>
+<h1><span class="header-section-number">Chapter 8</span> Getting your map layers and colours communicating<a href="shiny-colours.html#shiny-colours" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This chapter will cover:</p>
+<ul>
+<li>putting the previous two chapters all together in the shiny app and getting them to talk to each other</li>
+</ul>
 <p>For these examples, we will use the polygons and rasters from iTRAQI.</p>
-<p>The following chunk downloads these layers (just the same as in chapter <a href="intro.html#intro">1</a> but using SA1s this time).</p>
 
 </div>
             </section>
