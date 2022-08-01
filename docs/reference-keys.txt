@@ -39,3 +39,6 @@ basic-scatterplot-with-ggplot2
 colouring-the-scatterplot-with-the-itraqi-colours
 colouring-the-scatterplot-with-our-custom-palettes-colours
 shiny-colours
+selecting-polygons-using-leafletcontrol
+leafletcontrol
+shiny-inputs-to-select-layers

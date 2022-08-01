@@ -2,6 +2,242 @@
 
 This chapter will cover:
 
-- putting the previous two chapters all together in the shiny app and getting them to talk to each other
+- Selecting a layer using `leafletcontrol()` versus shiny inputs
+- Updating a shape's style to reduce load time
+- Putting the previous two chapters all together in the shiny app and getting them to talk to each other
 
 For these examples, we will use the polygons and rasters from iTRAQI.
+
+```{r}
+library(tidyverse)
+library(sf)
+download_layer <- function(layer_name, save_dir="input") {
+  githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/layers/{layer_name}")
+  download.file(githubURL, file.path(save_dir, layer_name), method="curl")
+  readRDS(file.path(save_dir, layer_name))
+}
+
+raster_layer <- download_layer("rehab_raster.rds") %>%
+  raster::raster(., layer=1)
+
+polygons_layer <- download_layer("stacked_SA1_and_SA2_polygons_year2016_simplified.rds")
+```
+
+This chapter will show the different ways we can show different layers on our map.
+
+## `leafletControl()`
+
+Suppose we want to be able to select between three layers, a layer showing remoteness in SA1s and two that show the travel time to acute and rehab care, respectively.
+
+Here, we first load some palettes to use for our drive times and remoteness maps. For the remoteness layer, we use greens. Check Chapter \@ref(leaflet-colours) for more details on how these palettes work and making the iTRAQI index palette (not used here). 
+
+```{r}
+# palette for remoteness index
+paLFac <- colorFactor("Greens", levels=0:4, ordered=TRUE, reverse=TRUE)
+
+
+# create index for drive times
+bins <- c(0, 30, 60, 120, 180, 240, 300, 360, 900, 1200)
+
+palBin <- colorBin("YlOrRd", domain = min(bins):max(bins), bins=bins, na.color="transparent")
+
+palNum1 <- colorNumeric(c(palBin(bins[1]), palBin(bins[2])), domain=0:30, na.color="transparent")
+palNum2 <- colorNumeric(c(palBin(bins[2]), palBin(bins[3])), domain=30:60, na.color="transparent")
+palNum3 <- colorNumeric(c(palBin(bins[3]), palBin(bins[4])), domain=60:120, na.color="transparent")
+palNum4 <- colorNumeric(c(palBin(bins[4]), palBin(bins[5])), domain=120:180, na.color="transparent")
+palNum5 <- colorNumeric(c(palBin(bins[5]), palBin(bins[6])), domain=180:240, na.color="transparent")
+palNum6 <- colorNumeric(c(palBin(bins[6]), palBin(bins[7])), domain=240:300, na.color="transparent")
+palNum7 <- colorNumeric(c(palBin(bins[7]), palBin(bins[8])), domain=300:360, na.color="transparent")
+palNum8 <- colorNumeric(c(palBin(bins[8]), palBin(bins[9])), domain=360:900, na.color="transparent")
+palNum9 <- colorNumeric(c(palBin(bins[9]), "#000000"), domain=900:1200, na.color="transparent")
+
+palNumMix <- function(x){
+  case_when(
+    x < 30  ~ palNum1(x),
+    x < 60  ~ palNum2(x),
+    x < 120 ~ palNum3(x),
+    x < 180 ~ palNum4(x),
+    x < 240 ~ palNum5(x),
+    x < 300 ~ palNum6(x),
+    x < 360 ~ palNum7(x),
+    x < 900 ~ palNum8(x),
+    x <1200 ~ palNum9(x),
+    x >=1200~ "#000000",
+    TRUE ~ "transparent"
+  )
+}
+```
+
+The simplest approach to giving the user the option to change between layers is to add a control panel with leaflet using `addLayersControl`. However, when the difference between these layers is the aesthetic but not the shape of the polygon, this means that the initial load time of the map is slowed! In the map below, we had to add the SA2 polygons to the map twice and this slowed down the load time. 
+
+```{r, warning=F}
+qld_SA2s <- filter(polygons_layer, SA_level==2)
+qld_SA1s <- filter(polygons_layer, SA_level==1)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    data=qld_SA1s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=paLFac(qld_SA1s$ra),
+    group="SA1 Remoteness"
+  ) %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palNumMix(qld_SA2s$value_acute),
+    group="SA2 Acute Travel Time"
+  ) %>%
+  addPolygons(
+    data=qld_SA2s,
+    color="black",
+    weight=1,
+    fillOpacity=1,
+    fillColor=palNumMix(qld_SA2s$value_rehab),
+    group="SA2 Rehab Travel Time"
+  ) %>%
+  addLayersControl(
+    position="topright",
+    baseGroups=c("SA1 Remoteness", "SA2 Acute Travel Time", "SA2 Rehab Travel Time"),
+    options=layersControlOptions(collapsed = FALSE)
+  )
+
+```
+
+There are some benefits to using this approach. The main one being that since the control is on the front end, and done by leaflet, the compute effort of changing the displayed layer doesn't require the shiny server. This is on theme with the recent push for server-less shiny and using observable in quarto documents to get shiny-like behaviour without requiring a shiny server! 
+
+This approach may also be fine if you don't have many layers to swap between, they're not very detailed (like SA1 polygons are!), if you don't care too much about load time, or if don't need to trigger any other changes to your app when the selected layer changes. (Un)fortunately for us, iTRAQI had all these things!
+
+## shiny inputs to select layers
+
+Firstly, we need to move our control of the layers to shiny inputs rather than using `leafletControl()`.
+
+In this example, aside from replicating what we had with the `layerControl()` selection, we also add a "None" option to deselect all layers. We use `absolutePanel()` to create a space over the top of the map that we can put shiny inputs. On it, we add an input for `layer_selection` using `radioButtons()`.
+
+On the server side, we include a corresponding observe that looks at the `input$layer_selection` and correspondingly shows and hides groups (using `showGroup()` and `hideGroup()`) on the leaflet map, accessed by `leafletProxy()`.
+
+The app is shown below but can it can be run directly from your R console using the following line:
+```{r, eval=F}
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-shiny-layer-controls-1/")
+```
+
+For the rest of this chapter, when there are example shiny apps, the `shiny::runGitHub()` option will come after the app code.
+
+```{r, eval=F}
+library(shiny)
+library(leaflet)
+library(tidyverse)
+library(sf)
+input_dir <- "./input"
+
+polygons_layer <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds"))
+
+ui <- navbarPage(
+  "App-with-a-map", id="nav",
+  tabPanel(
+    "Map",
+    div(
+      class="outer",
+        tags$head(
+          tags$style(HTML("
+            div.outer {
+              position: fixed;
+              top: 41px;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              overflow: hidden;
+              padding: 0;
+            }
+            "
+          ))
+        ),
+      leafletOutput('map', height="100%", width="100%"),
+      absolutePanel(
+        
+        id = "controls", class = "panel panel-default", fixed = TRUE,
+        draggable = TRUE, top = 50, left = "auto", right = 10, bottom = "auto",
+        width = 330, height = 200,
+        h4("Layer"),
+        radioButtons(
+          inputId="layer_selection", label=NULL,
+          choices=c(
+            "None", "SA1 Remoteness", "SA2 Acute Travel Time", "SA2 Rehab Travel Time"
+            ),
+          selected="None"
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  observeEvent(input$layer_selection, {
+    # Find out which groups need to be shown and which need to be hidden based on input$layer_selection.
+    layer_options <- c("SA1 Remoteness", "SA2 Acute Travel Time", "SA2 Rehab Travel Time")
+    if(input$layer_selection == "None") {
+      show_group <- c()
+    } else {
+      show_group <- input$layer_selection
+    }
+    hide_groups <- layer_options[layer_options != input$layer_selection]
+    
+    leafletProxy("map") %>%
+      hideGroup(hide_groups) %>%
+      showGroup(show_group)
+  })
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addPolygons(
+        data=qld_SA1s,
+        color="black",
+        weight=1,
+        fillOpacity=1,
+        fillColor=paLFac(qld_SA1s$ra),
+        group="SA1 Remoteness"
+      ) %>%
+      addPolygons(
+        data=qld_SA2s,
+        color="black",
+        weight=1,
+        fillOpacity=1,
+        fillColor=palNumMix(qld_SA2s$value_acute),
+        group="SA2 Acute Travel Time"
+      ) %>%
+      addPolygons(
+        data=qld_SA2s,
+        color="black",
+        weight=1,
+        fillOpacity=1,
+        fillColor=palNumMix(qld_SA2s$value_rehab),
+        group="SA2 Rehab Travel Time"
+      )
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+```{r, eval=F}
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-shiny-layer-controls-1/")
+```
+
+
+
+
+
+
+
+
+
+
+
+

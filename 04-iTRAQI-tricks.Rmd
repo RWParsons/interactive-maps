@@ -3,7 +3,7 @@
 This is the beginning of the second part of the book, where all the iTRAQI tricks are detailed.
 
 * Chapter \@ref(async-loading): Asynchronous loading and distracting your user
-* Chapter \@ref(leaflet-colours): Mixing continuous and discrete colour palettes
+* Chapters \@ref(leaflet-colours) and \@ref(ggplot2-colours): Mixing continuous and discrete colour palettes in both leaflet and ggplot2
 * Layer selection from the control panel
   * `addLayersControl` vs controls in shiny
   * Updating the map
