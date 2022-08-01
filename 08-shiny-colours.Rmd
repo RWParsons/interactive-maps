@@ -122,7 +122,7 @@ On the server side, we include a corresponding observe that looks at the `input$
 
 The app is shown below but can it can be run directly from your R console using the following line:
 ```{r, eval=F}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-shiny-layer-controls-1/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-01-shiny-layer-controls-1/")
 ```
 
 For the rest of this chapter, when there are example shiny apps, the `shiny::runGitHub()` option will come after the app code.
@@ -224,13 +224,6 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
-
-
-```{r, eval=F}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-shiny-layer-controls-1/")
-```
-
-
 
 
 

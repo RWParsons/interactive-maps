@@ -31,7 +31,7 @@ This book will include many example shiny apps and accompanying code. However, s
 
 The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as 'n' and we access it in the server by calling `input$n`. By accessing this input in such as way, within the expression used for `renderPlot()`, we are are asking the server side to update the plot every time that any inputs (`input$___`) used within it are updated.
 
-```{r 01-example-app}
+```{r}
 library(shiny)
 
 ui <- fluidPage(
@@ -50,7 +50,7 @@ shinyApp(ui, server)
 
 (And here's your code to run the app locally)
 ```{r eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/01-example-app/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-01-example-app/")
 ```
 
 
@@ -60,7 +60,7 @@ We're not here to make histograms, we're here to make maps!
 I prefer the navigation between tabs (which you may want later) using `navbarPage` to design my ui.
 These pages contain many panels that you can navigate between. Here's an app with a single `tabPanel` which contains our map.
 
-```{r 02-first-leaflet-map, eval=F}
+```{r, eval=F}
 library(shiny)
 library(leaflet)
 library(tidyverse)
@@ -96,11 +96,11 @@ shinyApp(ui, server)
 ```
 
 <center>
-![](www/app-images/02-first-leaflet-map.png){width=300px align=center}
+![](www/app-images/03-02-first-leaflet-map.png){width=300px align=center}
 </center>
 
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/02-first-leaflet-map/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-02-first-leaflet-map/")
 ```
 
 
@@ -110,7 +110,7 @@ You might notice a few things here that you'd like to change with the ui already
 
 Unfortunately, this is a surprisingly annoying thing to do. If you change the height and width of the map to be 100% of the viewport height and width (by using `height="100vh", width="100vw"` in `leafletOutput()`) then you end up with a padding distance between the map and the panel, and an offset from above due to the height of the top panel bar. The best solution is to create a division (`div`), remove its padding, and fill the space left with the map (100%). This means a little bit of CSS code and then assigning it to the division which wraps the map. I get the CSS code and the division to talk to eachother by assigning the class of the division to be 'outer' and assigning the aesthetic changes to 'div.outer' in the CSS code. The 41px that I remove at the top is due to the top bar of the navbarPage being 41px high.
 
-```{r 03-fill-panel-with-css, eval=FALSE}
+```{r 03-03-fill-panel-with-css, eval=FALSE}
 library(shiny)
 library(leaflet)
 library(tidyverse)
@@ -162,10 +162,10 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 <center>
-![](www/app-images/03-fill-panel-with-css.png){width=300px align=center}
+![](www/app-images/03-03-fill-panel-with-css.png){width=300px align=center}
 </center>
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-fill-panel-with-css/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-03-fill-panel-with-css/")
 ```
 
 Now we have an app with a map, not just an app with a map (and painfully empty space).
@@ -196,7 +196,7 @@ This map has a toggle to switch between showing the polygons and towns. Also, cl
 We also added an panel to hold a drop down menu containing names of all the towns that we have on the plot. If you select a town, this updates the input$town_name which triggers some reactivity since it is being observed. When a town is selected, the map will zoom to its coordinates. If none is selected, it zooms out to look at all of Queensland. This part is controlled by shiny reactivity. It updates the existing map by using `leafletProxy()`.
 This takes one argument: the id of the map, which is the same as the output id (we used `output$map`) so we update our map with `leafletProxy(mapId="map")`. This functionality is only for shiny apps and shiny docs, it allows us to add or modify content on our existing map without having to render it again. We used the `flyTo` and `flyToBounds` functions to update our map to move to the given location. However, we could can make all sorts of modifications and additions to our map in this way!
 
-```{r 04-leaflet-and-shiny-interactivity, eval=FALSE}
+```{r 03-04-leaflet-and-shiny-interactivity, eval=FALSE}
 library(shiny)
 library(leaflet)
 library(tidyverse)
@@ -286,10 +286,10 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 <center>
-![](www/app-images/04-leaflet-and-shiny-interactivity.png){width=300px align=center}
+![](www/app-images/03-04-leaflet-and-shiny-interactivity.png){width=300px align=center}
 </center>
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/04-leaflet-and-shiny-interactivity/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-04-leaflet-and-shiny-interactivity/")
 ```
 
 We used a range of features from both leaflet and shiny to make iTRAQI interactive. This was a very brief introduction to reactivity and shiny. I recommend reading the [sections 1-3 of Mastering Shiny](https://mastering-shiny.org/basic-app.html) as the next chapter will cover specific tricks to add specific features to your maps won't do as good of a job introducing the fundamentals of shiny as Mastering Shiny does.

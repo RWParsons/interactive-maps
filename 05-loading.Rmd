@@ -5,7 +5,7 @@
 We made the following app in the last section of chapter \@ref(shiny-intro) except we only used SA2 polygons. In the iTRAQI app, we use both SA1s and SA2s - this means a lot more detail, many more polygons, and a slower load time. The following code loads both SA1s and SA2s - note how long it takes to run by either copy-pasting the code or running the first `runGithub` line. (Also, appreciate that a shiny server may load it even slower than the computer, especially if that server has many concurrent users!)
 
 ```{r, eval=F}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/05-async-load-1/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/05-01-async-load-1/")
 ```
 
 ```{r, eval=F}
@@ -181,7 +181,7 @@ shinyApp(ui, server)
 ```
 
 ```{r, eval=F}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/06-async-load-2/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/05-02-async-load-2/")
 ```
 
 ## Asynchronous loading
@@ -324,5 +324,5 @@ shinyApp(ui, server)
 ```
 
 ```{r, eval=F}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/07-async-load-3/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/05-03-async-load-3/")
 ```
