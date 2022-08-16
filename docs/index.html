@@ -23,7 +23,7 @@
 <meta name="author" content="Rex Parsons" />
 
 
-<meta name="date" content="2022-08-01" />
+<meta name="date" content="2022-08-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -203,7 +203,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="7.2" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-the-itraqi-colours"><i class="fa fa-check"></i><b>7.2</b> Colouring the scatterplot with the iTRAQI colours</a></li>
 <li class="chapter" data-level="7.3" data-path="ggplot2-colours.html"><a href="ggplot2-colours.html#colouring-the-scatterplot-with-our-custom-palettes-colours"><i class="fa fa-check"></i><b>7.3</b> Colouring the scatterplot with our custom-palette’s colours</a></li>
 </ul></li>
-<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Getting your map layers and colours communicating</a></li>
+<li class="chapter" data-level="8" data-path="shiny-colours.html"><a href="shiny-colours.html"><i class="fa fa-check"></i><b>8</b> Getting your map layers and colours communicating</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="shiny-colours.html"><a href="shiny-colours.html#leafletcontrol"><i class="fa fa-check"></i><b>8.1</b> <code>leafletControl()</code></a></li>
+<li class="chapter" data-level="8.2" data-path="shiny-colours.html"><a href="shiny-colours.html#shiny-inputs-to-select-layers"><i class="fa fa-check"></i><b>8.2</b> shiny inputs to select layers</a></li>
+<li class="chapter" data-level="8.3" data-path="shiny-colours.html"><a href="shiny-colours.html#updating-a-shapes-aesthetic."><i class="fa fa-check"></i><b>8.3</b> Updating a shape’s aesthetic.</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -227,7 +232,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">Interactive maps with leaflet</h1>
 <p class="author"><em>Rex Parsons</em></p>
-<p class="date"><em>2022-08-01</em></p>
+<p class="date"><em>2022-08-16</em></p>
 </div>
 <div id="preface" class="section level1 unnumbered hasAnchor">
 <h1>Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -264,8 +269,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-13"><a href="index.html#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="index.html#cb1-14" aria-hidden="true" tabindex="-1"></a>required_packages <span class="ot">&lt;-</span> pkgs[<span class="sc">!</span>pkgs <span class="sc">%in%</span> <span class="fu">installed.packages</span>()]</span>
 <span id="cb1-15"><a href="index.html#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="index.html#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">length</span>(required_packages)<span class="sc">&gt;</span><span class="dv">0</span>) {</span>
-<span id="cb1-17"><a href="index.html#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Installing the following packages: </span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="fu">paste0</span>(required_packages, <span class="at">collapse=</span><span class="st">&quot;, &quot;</span>))</span>
+<span id="cb1-16"><a href="index.html#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(required_packages) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb1-17"><a href="index.html#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Installing the following packages: </span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="fu">paste0</span>(required_packages, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>))</span>
 <span id="cb1-18"><a href="index.html#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(required_packages)</span>
 <span id="cb1-19"><a href="index.html#cb1-19" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
 <span id="cb1-20"><a href="index.html#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;All required packages already installed!&quot;</span>)</span>

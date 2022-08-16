@@ -23,7 +23,7 @@
 <meta name="author" content="Rex Parsons" />
 
 
-<meta name="date" content="2022-08-01" />
+<meta name="date" content="2022-08-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,6 +52,16 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.1.1/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.1.1/leaflet-providers-plugin.js"></script>
 
 
 <style type="text/css">
@@ -197,6 +207,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="8.1" data-path="shiny-colours.html"><a href="shiny-colours.html#leafletcontrol"><i class="fa fa-check"></i><b>8.1</b> <code>leafletControl()</code></a></li>
 <li class="chapter" data-level="8.2" data-path="shiny-colours.html"><a href="shiny-colours.html#shiny-inputs-to-select-layers"><i class="fa fa-check"></i><b>8.2</b> shiny inputs to select layers</a></li>
+<li class="chapter" data-level="8.3" data-path="shiny-colours.html"><a href="shiny-colours.html#updating-a-shapes-aesthetic."><i class="fa fa-check"></i><b>8.3</b> Updating a shape’s aesthetic.</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -230,137 +241,136 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="a-bare-bones-shiny-app" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> A bare bones shiny app<a href="shiny-intro.html#a-bare-bones-shiny-app" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The most basic shiny app has a user-interface (<code>ui</code>) and a back-end (<code>server</code>) side. We control what content appears where on within the ui, and we control all the clever interactivity and generated content on the server side.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="shiny-intro.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb1-2"><a href="shiny-intro.html#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="shiny-intro.html#cb1-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
-<span id="cb1-4"><a href="shiny-intro.html#cb1-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-5"><a href="shiny-intro.html#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-6"><a href="shiny-intro.html#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="shiny-intro.html#cb1-7" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb1-8"><a href="shiny-intro.html#cb1-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-9"><a href="shiny-intro.html#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-10"><a href="shiny-intro.html#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="shiny-intro.html#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="shiny-intro.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb45-2"><a href="shiny-intro.html#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="shiny-intro.html#cb45-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>()</span>
+<span id="cb45-4"><a href="shiny-intro.html#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="shiny-intro.html#cb45-5" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb45-6"><a href="shiny-intro.html#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="shiny-intro.html#cb45-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb45-8"><a href="shiny-intro.html#cb45-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-9"><a href="shiny-intro.html#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <p>This book will include many example shiny apps and accompanying code. However, since it’d be very time consuming to host all those apps independently, I will instead provide the code and sometimes an image of how the app displays. With every example app there will be a followup line of code with <code>shiny::runGitHub(...)</code> that you can use to run the app locally. If you run this line in R on your own computer, it will run the app in a way that you can then interact with it.</p>
 <p>The inputs on the ui side always have an inputId and it is by this name that we access those values from the server. In the code below, we name an input as ‘n’ and we access it in the server by calling <code>input$n</code>. By accessing this input in such as way, within the expression used for <code>renderPlot()</code>, we are are asking the server side to update the plot every time that any inputs (<code>input$___</code>) used within it are updated.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="shiny-intro.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb2-2"><a href="shiny-intro.html#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="shiny-intro.html#cb2-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
-<span id="cb2-4"><a href="shiny-intro.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">numericInput</span>(<span class="at">inputId=</span><span class="st">&#39;n&#39;</span>, <span class="at">label=</span><span class="st">&#39;sample size&#39;</span>, <span class="at">value=</span><span class="dv">10</span>),</span>
-<span id="cb2-5"><a href="shiny-intro.html#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plotOutput</span>(<span class="st">&#39;plot&#39;</span>)</span>
-<span id="cb2-6"><a href="shiny-intro.html#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-7"><a href="shiny-intro.html#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="shiny-intro.html#cb2-8" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb2-9"><a href="shiny-intro.html#cb2-9" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="at">expr=</span>{</span>
-<span id="cb2-10"><a href="shiny-intro.html#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hist</span>(<span class="at">x=</span><span class="fu">rnorm</span>(input<span class="sc">$</span>n))</span>
-<span id="cb2-11"><a href="shiny-intro.html#cb2-11" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb2-12"><a href="shiny-intro.html#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-13"><a href="shiny-intro.html#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="shiny-intro.html#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="shiny-intro.html#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb46-2"><a href="shiny-intro.html#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="shiny-intro.html#cb46-3" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb46-4"><a href="shiny-intro.html#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">numericInput</span>(<span class="at">inputId =</span> <span class="st">&quot;n&quot;</span>, <span class="at">label =</span> <span class="st">&quot;sample size&quot;</span>, <span class="at">value =</span> <span class="dv">10</span>),</span>
+<span id="cb46-5"><a href="shiny-intro.html#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plotOutput</span>(<span class="st">&quot;plot&quot;</span>)</span>
+<span id="cb46-6"><a href="shiny-intro.html#cb46-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-7"><a href="shiny-intro.html#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="shiny-intro.html#cb46-8" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb46-9"><a href="shiny-intro.html#cb46-9" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="at">expr =</span> {</span>
+<span id="cb46-10"><a href="shiny-intro.html#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hist</span>(<span class="at">x =</span> <span class="fu">rnorm</span>(input<span class="sc">$</span>n))</span>
+<span id="cb46-11"><a href="shiny-intro.html#cb46-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb46-12"><a href="shiny-intro.html#cb46-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb46-13"><a href="shiny-intro.html#cb46-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-14"><a href="shiny-intro.html#cb46-14" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <pre><code>## 
-## Listening on http://127.0.0.1:4775</code></pre>
-<p><img src="interactive-maps_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+## Listening on http://127.0.0.1:6508</code></pre>
+<p><img src="interactive-maps_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>(And here’s your code to run the app locally)</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="shiny-intro.html#cb4-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/03-01-example-app/&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="shiny-intro.html#cb48-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir =</span> <span class="st">&quot;input/apps/03-01-example-app/&quot;</span>)</span></code></pre></div>
 </div>
 <div id="leaflet-maps-in-shiny" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> Leaflet maps in shiny<a href="shiny-intro.html#leaflet-maps-in-shiny" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We’re not here to make histograms, we’re here to make maps!
 I prefer the navigation between tabs (which you may want later) using <code>navbarPage</code> to design my ui.
 These pages contain many panels that you can navigate between. Here’s an app with a single <code>tabPanel</code> which contains our map.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="shiny-intro.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb5-2"><a href="shiny-intro.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
-<span id="cb5-3"><a href="shiny-intro.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb5-4"><a href="shiny-intro.html#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb5-5"><a href="shiny-intro.html#cb5-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
-<span id="cb5-6"><a href="shiny-intro.html#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="shiny-intro.html#cb5-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-8"><a href="shiny-intro.html#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level<span class="sc">==</span><span class="dv">2</span>)</span>
-<span id="cb5-9"><a href="shiny-intro.html#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="shiny-intro.html#cb5-10" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
-<span id="cb5-11"><a href="shiny-intro.html#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>, <span class="at">id=</span><span class="st">&quot;nav&quot;</span>,</span>
-<span id="cb5-12"><a href="shiny-intro.html#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
-<span id="cb5-13"><a href="shiny-intro.html#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
-<span id="cb5-14"><a href="shiny-intro.html#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leafletOutput</span>(<span class="st">&#39;map&#39;</span>)</span>
-<span id="cb5-15"><a href="shiny-intro.html#cb5-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-16"><a href="shiny-intro.html#cb5-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-17"><a href="shiny-intro.html#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="shiny-intro.html#cb5-18" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb5-19"><a href="shiny-intro.html#cb5-19" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
-<span id="cb5-20"><a href="shiny-intro.html#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb5-21"><a href="shiny-intro.html#cb5-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb5-22"><a href="shiny-intro.html#cb5-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
-<span id="cb5-23"><a href="shiny-intro.html#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">data=</span>sa2_polygons,</span>
-<span id="cb5-24"><a href="shiny-intro.html#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor=</span><span class="st">&quot;Orange&quot;</span>,</span>
-<span id="cb5-25"><a href="shiny-intro.html#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">color=</span><span class="st">&quot;black&quot;</span>,</span>
-<span id="cb5-26"><a href="shiny-intro.html#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight=</span><span class="dv">1</span>,</span>
-<span id="cb5-27"><a href="shiny-intro.html#cb5-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">group=</span><span class="st">&quot;Polygons&quot;</span></span>
-<span id="cb5-28"><a href="shiny-intro.html#cb5-28" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb5-29"><a href="shiny-intro.html#cb5-29" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb5-30"><a href="shiny-intro.html#cb5-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-31"><a href="shiny-intro.html#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-32"><a href="shiny-intro.html#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="shiny-intro.html#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb49-2"><a href="shiny-intro.html#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb49-3"><a href="shiny-intro.html#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb49-4"><a href="shiny-intro.html#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb49-5"><a href="shiny-intro.html#cb49-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
+<span id="cb49-6"><a href="shiny-intro.html#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-7"><a href="shiny-intro.html#cb49-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb49-8"><a href="shiny-intro.html#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb49-9"><a href="shiny-intro.html#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-10"><a href="shiny-intro.html#cb49-10" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
+<span id="cb49-11"><a href="shiny-intro.html#cb49-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>,</span>
+<span id="cb49-12"><a href="shiny-intro.html#cb49-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="st">&quot;nav&quot;</span>,</span>
+<span id="cb49-13"><a href="shiny-intro.html#cb49-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
+<span id="cb49-14"><a href="shiny-intro.html#cb49-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
+<span id="cb49-15"><a href="shiny-intro.html#cb49-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leafletOutput</span>(<span class="st">&quot;map&quot;</span>)</span>
+<span id="cb49-16"><a href="shiny-intro.html#cb49-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb49-17"><a href="shiny-intro.html#cb49-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb49-18"><a href="shiny-intro.html#cb49-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-19"><a href="shiny-intro.html#cb49-19" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb49-20"><a href="shiny-intro.html#cb49-20" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
+<span id="cb49-21"><a href="shiny-intro.html#cb49-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb49-22"><a href="shiny-intro.html#cb49-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb49-23"><a href="shiny-intro.html#cb49-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
+<span id="cb49-24"><a href="shiny-intro.html#cb49-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> sa2_polygons,</span>
+<span id="cb49-25"><a href="shiny-intro.html#cb49-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor =</span> <span class="st">&quot;Orange&quot;</span>,</span>
+<span id="cb49-26"><a href="shiny-intro.html#cb49-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb49-27"><a href="shiny-intro.html#cb49-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="dv">1</span>,</span>
+<span id="cb49-28"><a href="shiny-intro.html#cb49-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">group =</span> <span class="st">&quot;Polygons&quot;</span></span>
+<span id="cb49-29"><a href="shiny-intro.html#cb49-29" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb49-30"><a href="shiny-intro.html#cb49-30" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb49-31"><a href="shiny-intro.html#cb49-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb49-32"><a href="shiny-intro.html#cb49-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-33"><a href="shiny-intro.html#cb49-33" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <center>
 <img src="www/app-images/03-02-first-leaflet-map.png" align="center" width="300" />
 </center>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="shiny-intro.html#cb6-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/03-02-first-leaflet-map/&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="shiny-intro.html#cb50-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir =</span> <span class="st">&quot;input/apps/03-02-first-leaflet-map/&quot;</span>)</span></code></pre></div>
 <div id="filling-the-space" class="section level3 hasAnchor" number="3.2.1">
 <h3><span class="header-section-number">3.2.1</span> Filling the space<a href="shiny-intro.html#filling-the-space" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>You might notice a few things here that you’d like to change with the ui already. Without getting into details like the colours of the panels, a major issue is that the map doesn’t fill the entire space in the panel. Before we get into user-inputs, and for my own sanity, this has to be fixed.</p>
 <p>Unfortunately, this is a surprisingly annoying thing to do. If you change the height and width of the map to be 100% of the viewport height and width (by using <code>height="100vh", width="100vw"</code> in <code>leafletOutput()</code>) then you end up with a padding distance between the map and the panel, and an offset from above due to the height of the top panel bar. The best solution is to create a division (<code>div</code>), remove its padding, and fill the space left with the map (100%). This means a little bit of CSS code and then assigning it to the division which wraps the map. I get the CSS code and the division to talk to eachother by assigning the class of the division to be ‘outer’ and assigning the aesthetic changes to ‘div.outer’ in the CSS code. The 41px that I remove at the top is due to the top bar of the navbarPage being 41px high.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="shiny-intro.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb7-2"><a href="shiny-intro.html#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
-<span id="cb7-3"><a href="shiny-intro.html#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb7-4"><a href="shiny-intro.html#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb7-5"><a href="shiny-intro.html#cb7-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
-<span id="cb7-6"><a href="shiny-intro.html#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="shiny-intro.html#cb7-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb7-8"><a href="shiny-intro.html#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level<span class="sc">==</span><span class="dv">2</span>)</span>
-<span id="cb7-9"><a href="shiny-intro.html#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="shiny-intro.html#cb7-10" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
-<span id="cb7-11"><a href="shiny-intro.html#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>, <span class="at">id=</span><span class="st">&quot;nav&quot;</span>,</span>
-<span id="cb7-12"><a href="shiny-intro.html#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
-<span id="cb7-13"><a href="shiny-intro.html#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
-<span id="cb7-14"><a href="shiny-intro.html#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">div</span>(</span>
-<span id="cb7-15"><a href="shiny-intro.html#cb7-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">class=</span><span class="st">&quot;outer&quot;</span>,</span>
-<span id="cb7-16"><a href="shiny-intro.html#cb7-16" aria-hidden="true" tabindex="-1"></a>        tags<span class="sc">$</span><span class="fu">head</span>(</span>
-<span id="cb7-17"><a href="shiny-intro.html#cb7-17" aria-hidden="true" tabindex="-1"></a>          tags<span class="sc">$</span><span class="fu">style</span>(<span class="fu">HTML</span>(<span class="st">&quot;</span></span>
-<span id="cb7-18"><a href="shiny-intro.html#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="st">            div.outer {</span></span>
-<span id="cb7-19"><a href="shiny-intro.html#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="st">              position: fixed;</span></span>
-<span id="cb7-20"><a href="shiny-intro.html#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="st">              top: 41px;</span></span>
-<span id="cb7-21"><a href="shiny-intro.html#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="st">              left: 0;</span></span>
-<span id="cb7-22"><a href="shiny-intro.html#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="st">              right: 0;</span></span>
-<span id="cb7-23"><a href="shiny-intro.html#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="st">              bottom: 0;</span></span>
-<span id="cb7-24"><a href="shiny-intro.html#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="st">              overflow: hidden;</span></span>
-<span id="cb7-25"><a href="shiny-intro.html#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="st">              padding: 0;</span></span>
-<span id="cb7-26"><a href="shiny-intro.html#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="st">            }</span></span>
-<span id="cb7-27"><a href="shiny-intro.html#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="st">            &quot;</span></span>
-<span id="cb7-28"><a href="shiny-intro.html#cb7-28" aria-hidden="true" tabindex="-1"></a>          ))</span>
-<span id="cb7-29"><a href="shiny-intro.html#cb7-29" aria-hidden="true" tabindex="-1"></a>        ),</span>
-<span id="cb7-30"><a href="shiny-intro.html#cb7-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletOutput</span>(<span class="st">&#39;map&#39;</span>, <span class="at">height=</span><span class="st">&quot;100%&quot;</span>, <span class="at">width=</span><span class="st">&quot;100%&quot;</span>)</span>
-<span id="cb7-31"><a href="shiny-intro.html#cb7-31" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-32"><a href="shiny-intro.html#cb7-32" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-33"><a href="shiny-intro.html#cb7-33" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-34"><a href="shiny-intro.html#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-35"><a href="shiny-intro.html#cb7-35" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb7-36"><a href="shiny-intro.html#cb7-36" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
-<span id="cb7-37"><a href="shiny-intro.html#cb7-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-38"><a href="shiny-intro.html#cb7-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-39"><a href="shiny-intro.html#cb7-39" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
-<span id="cb7-40"><a href="shiny-intro.html#cb7-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">data=</span>sa2_polygons,</span>
-<span id="cb7-41"><a href="shiny-intro.html#cb7-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor=</span><span class="st">&quot;Orange&quot;</span>,</span>
-<span id="cb7-42"><a href="shiny-intro.html#cb7-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">color=</span><span class="st">&quot;black&quot;</span>,</span>
-<span id="cb7-43"><a href="shiny-intro.html#cb7-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight=</span><span class="dv">1</span>,</span>
-<span id="cb7-44"><a href="shiny-intro.html#cb7-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">group=</span><span class="st">&quot;Polygons&quot;</span></span>
-<span id="cb7-45"><a href="shiny-intro.html#cb7-45" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb7-46"><a href="shiny-intro.html#cb7-46" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb7-47"><a href="shiny-intro.html#cb7-47" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-48"><a href="shiny-intro.html#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-49"><a href="shiny-intro.html#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="shiny-intro.html#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb51-2"><a href="shiny-intro.html#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb51-3"><a href="shiny-intro.html#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb51-4"><a href="shiny-intro.html#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb51-5"><a href="shiny-intro.html#cb51-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
+<span id="cb51-6"><a href="shiny-intro.html#cb51-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-7"><a href="shiny-intro.html#cb51-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb51-8"><a href="shiny-intro.html#cb51-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb51-9"><a href="shiny-intro.html#cb51-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-10"><a href="shiny-intro.html#cb51-10" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
+<span id="cb51-11"><a href="shiny-intro.html#cb51-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>,</span>
+<span id="cb51-12"><a href="shiny-intro.html#cb51-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="st">&quot;nav&quot;</span>,</span>
+<span id="cb51-13"><a href="shiny-intro.html#cb51-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
+<span id="cb51-14"><a href="shiny-intro.html#cb51-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
+<span id="cb51-15"><a href="shiny-intro.html#cb51-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb51-16"><a href="shiny-intro.html#cb51-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">&quot;outer&quot;</span>,</span>
+<span id="cb51-17"><a href="shiny-intro.html#cb51-17" aria-hidden="true" tabindex="-1"></a>      tags<span class="sc">$</span><span class="fu">head</span>(</span>
+<span id="cb51-18"><a href="shiny-intro.html#cb51-18" aria-hidden="true" tabindex="-1"></a>        tags<span class="sc">$</span><span class="fu">style</span>(<span class="fu">HTML</span>(<span class="st">&quot;</span></span>
+<span id="cb51-19"><a href="shiny-intro.html#cb51-19" aria-hidden="true" tabindex="-1"></a><span class="st">            div.outer {</span></span>
+<span id="cb51-20"><a href="shiny-intro.html#cb51-20" aria-hidden="true" tabindex="-1"></a><span class="st">              position: fixed;</span></span>
+<span id="cb51-21"><a href="shiny-intro.html#cb51-21" aria-hidden="true" tabindex="-1"></a><span class="st">              top: 41px;</span></span>
+<span id="cb51-22"><a href="shiny-intro.html#cb51-22" aria-hidden="true" tabindex="-1"></a><span class="st">              left: 0;</span></span>
+<span id="cb51-23"><a href="shiny-intro.html#cb51-23" aria-hidden="true" tabindex="-1"></a><span class="st">              right: 0;</span></span>
+<span id="cb51-24"><a href="shiny-intro.html#cb51-24" aria-hidden="true" tabindex="-1"></a><span class="st">              bottom: 0;</span></span>
+<span id="cb51-25"><a href="shiny-intro.html#cb51-25" aria-hidden="true" tabindex="-1"></a><span class="st">              overflow: hidden;</span></span>
+<span id="cb51-26"><a href="shiny-intro.html#cb51-26" aria-hidden="true" tabindex="-1"></a><span class="st">              padding: 0;</span></span>
+<span id="cb51-27"><a href="shiny-intro.html#cb51-27" aria-hidden="true" tabindex="-1"></a><span class="st">            }</span></span>
+<span id="cb51-28"><a href="shiny-intro.html#cb51-28" aria-hidden="true" tabindex="-1"></a><span class="st">            &quot;</span>))</span>
+<span id="cb51-29"><a href="shiny-intro.html#cb51-29" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb51-30"><a href="shiny-intro.html#cb51-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletOutput</span>(<span class="st">&quot;map&quot;</span>, <span class="at">height =</span> <span class="st">&quot;100%&quot;</span>, <span class="at">width =</span> <span class="st">&quot;100%&quot;</span>)</span>
+<span id="cb51-31"><a href="shiny-intro.html#cb51-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb51-32"><a href="shiny-intro.html#cb51-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb51-33"><a href="shiny-intro.html#cb51-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb51-34"><a href="shiny-intro.html#cb51-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-35"><a href="shiny-intro.html#cb51-35" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb51-36"><a href="shiny-intro.html#cb51-36" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
+<span id="cb51-37"><a href="shiny-intro.html#cb51-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-38"><a href="shiny-intro.html#cb51-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-39"><a href="shiny-intro.html#cb51-39" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
+<span id="cb51-40"><a href="shiny-intro.html#cb51-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> sa2_polygons,</span>
+<span id="cb51-41"><a href="shiny-intro.html#cb51-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor =</span> <span class="st">&quot;Orange&quot;</span>,</span>
+<span id="cb51-42"><a href="shiny-intro.html#cb51-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb51-43"><a href="shiny-intro.html#cb51-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="dv">1</span>,</span>
+<span id="cb51-44"><a href="shiny-intro.html#cb51-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">group =</span> <span class="st">&quot;Polygons&quot;</span></span>
+<span id="cb51-45"><a href="shiny-intro.html#cb51-45" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb51-46"><a href="shiny-intro.html#cb51-46" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb51-47"><a href="shiny-intro.html#cb51-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb51-48"><a href="shiny-intro.html#cb51-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-49"><a href="shiny-intro.html#cb51-49" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <center>
 <img src="www/app-images/03-03-fill-panel-with-css.png" align="center" width="300" />
 </center>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="shiny-intro.html#cb8-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/03-03-fill-panel-with-css/&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="shiny-intro.html#cb52-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir =</span> <span class="st">&quot;input/apps/03-03-fill-panel-with-css/&quot;</span>)</span></code></pre></div>
 Now we have an app with a map, not just an app with a map (and painfully empty space).
 <center>
 <img src="www/phew.gif" align="center" width="300" />
@@ -371,105 +381,105 @@ Now we have an app with a map, not just an app with a map (and painfully empty s
 <h2><span class="header-section-number">3.3</span> Leaflet vs shiny interactivity<a href="shiny-intro.html#leaflet-vs-shiny-interactivity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>There are interactive elements which come in leaflet before even incorporating shiny. For example, in the previous chapter we made a leaflet map that had a layer selector which gives the user control over what polygon layer (SA1, SA2, SA3) was being displayed on the map. This functionality is all leaflet based and incorporating it into a shiny app doesn’t require adding any inputs to the ui side of the shiny app! This is great, because it doesn’t depend on the server side to do any heavy lifting, and it can be functional while the server side is busy doing other operations. If possible, it’s best to make use of this interactivity that leaflet has to offer: this means less code to maintain and less work for the server where you host your shiny app.</p>
 <p>However, we will need to incorporate shiny inputs at the point where we want to add features to our app that leaflet doesn’t have for us. To do this, we update our map very differently to how we updated the histogram in our first app example. Re-making the map is computationally expensive and would drastically slow down how quick the map responds to your inputs. In the histogram example, we used the following code.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="shiny-intro.html#cb9-1" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="at">expr=</span>{</span>
-<span id="cb9-2"><a href="shiny-intro.html#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(<span class="at">x=</span><span class="fu">rnorm</span>(input<span class="sc">$</span>n))</span>
-<span id="cb9-3"><a href="shiny-intro.html#cb9-3" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="shiny-intro.html#cb53-1" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="at">expr =</span> {</span>
+<span id="cb53-2"><a href="shiny-intro.html#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(<span class="at">x =</span> <span class="fu">rnorm</span>(input<span class="sc">$</span>n))</span>
+<span id="cb53-3"><a href="shiny-intro.html#cb53-3" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <p><code>renderPlot()</code> takes a few arguments but the one we care most about is the first: <code>expr</code>. Since it’s always the first argument of all the <code>render___()</code> functions, we don’t normally bother with the <code>expr=</code>. This is the expression (code) that creates the plot. Since it reads an input, every time that the <code>input$n</code> is updated, the server side reacts by updating it’s output which is then displayed to the user.</p>
 <p>For our leaflet maps, we don’t want to use user inputs in our <code>renderLeaflet()</code> expression as this would mean redrawing the content delays for the user. Instead, we observe changes to the inputs and update our map via a proxy.</p>
 <p>In the app below, we add some leaflet interactivity as well as some shiny reactivity.</p>
 <p>This map has a toggle to switch between showing the polygons and towns. Also, clicking on the markers for the towns will show a popup. The popup content is assigned when adding the circle markers (<code>addCircleMarkers()</code>) and you can use HTML tags to customise how it displays. All of this interactivity was made when we first rendered the leaflet map.</p>
 <p>We also added an panel to hold a drop down menu containing names of all the towns that we have on the plot. If you select a town, this updates the input<span class="math inline">\(town_name which triggers some reactivity since it is being observed. When a town is selected, the map will zoom to its coordinates. If none is selected, it zooms out to look at all of Queensland. This part is controlled by shiny reactivity. It updates the existing map by using `leafletProxy()`. This takes one argument: the id of the map, which is the same as the output id (we used `output\)</span>map<code>) so we update our map with</code>leafletProxy(mapId=“map”)<code>. This functionality is only for shiny apps and shiny docs, it allows us to add or modify content on our existing map without having to render it again. We used the</code>flyTo<code>and</code>flyToBounds` functions to update our map to move to the given location. However, we could can make all sorts of modifications and additions to our map in this way!</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="shiny-intro.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb10-2"><a href="shiny-intro.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
-<span id="cb10-3"><a href="shiny-intro.html#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb10-4"><a href="shiny-intro.html#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb10-5"><a href="shiny-intro.html#cb10-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
-<span id="cb10-6"><a href="shiny-intro.html#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="shiny-intro.html#cb10-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-8"><a href="shiny-intro.html#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level<span class="sc">==</span><span class="dv">2</span>)</span>
-<span id="cb10-9"><a href="shiny-intro.html#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="shiny-intro.html#cb10-10" aria-hidden="true" tabindex="-1"></a>towns <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;df_towns.csv&quot;</span>)) </span>
-<span id="cb10-11"><a href="shiny-intro.html#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="shiny-intro.html#cb10-12" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
-<span id="cb10-13"><a href="shiny-intro.html#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>, <span class="at">id=</span><span class="st">&quot;nav&quot;</span>,</span>
-<span id="cb10-14"><a href="shiny-intro.html#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
-<span id="cb10-15"><a href="shiny-intro.html#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
-<span id="cb10-16"><a href="shiny-intro.html#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">div</span>(</span>
-<span id="cb10-17"><a href="shiny-intro.html#cb10-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">class=</span><span class="st">&quot;outer&quot;</span>,</span>
-<span id="cb10-18"><a href="shiny-intro.html#cb10-18" aria-hidden="true" tabindex="-1"></a>        tags<span class="sc">$</span><span class="fu">head</span>(</span>
-<span id="cb10-19"><a href="shiny-intro.html#cb10-19" aria-hidden="true" tabindex="-1"></a>          tags<span class="sc">$</span><span class="fu">style</span>(<span class="fu">HTML</span>(<span class="st">&quot;</span></span>
-<span id="cb10-20"><a href="shiny-intro.html#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="st">            div.outer {</span></span>
-<span id="cb10-21"><a href="shiny-intro.html#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="st">              position: fixed;</span></span>
-<span id="cb10-22"><a href="shiny-intro.html#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="st">              top: 41px;</span></span>
-<span id="cb10-23"><a href="shiny-intro.html#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="st">              left: 0;</span></span>
-<span id="cb10-24"><a href="shiny-intro.html#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="st">              right: 0;</span></span>
-<span id="cb10-25"><a href="shiny-intro.html#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="st">              bottom: 0;</span></span>
-<span id="cb10-26"><a href="shiny-intro.html#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="st">              overflow: hidden;</span></span>
-<span id="cb10-27"><a href="shiny-intro.html#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="st">              padding: 0;</span></span>
-<span id="cb10-28"><a href="shiny-intro.html#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="st">            }</span></span>
-<span id="cb10-29"><a href="shiny-intro.html#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="st">            &quot;</span></span>
-<span id="cb10-30"><a href="shiny-intro.html#cb10-30" aria-hidden="true" tabindex="-1"></a>          ))</span>
-<span id="cb10-31"><a href="shiny-intro.html#cb10-31" aria-hidden="true" tabindex="-1"></a>        ),</span>
-<span id="cb10-32"><a href="shiny-intro.html#cb10-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletOutput</span>(<span class="st">&#39;map&#39;</span>, <span class="at">height=</span><span class="st">&quot;100%&quot;</span>, <span class="at">width=</span><span class="st">&quot;100%&quot;</span>),</span>
-<span id="cb10-33"><a href="shiny-intro.html#cb10-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">absolutePanel</span>(</span>
-<span id="cb10-34"><a href="shiny-intro.html#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">top=</span><span class="dv">75</span>, <span class="at">left=</span><span class="dv">10</span>, </span>
-<span id="cb10-35"><a href="shiny-intro.html#cb10-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">class =</span> <span class="st">&quot;panel panel-default&quot;</span>,</span>
-<span id="cb10-36"><a href="shiny-intro.html#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="st">&#39;town_name&#39;</span>, <span class="st">&#39;Town Name&#39;</span>,</span>
-<span id="cb10-37"><a href="shiny-intro.html#cb10-37" aria-hidden="true" tabindex="-1"></a>                  <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">&#39;None&#39;</span>, <span class="fu">sort</span>(towns<span class="sc">$</span>location)),</span>
-<span id="cb10-38"><a href="shiny-intro.html#cb10-38" aria-hidden="true" tabindex="-1"></a>                  <span class="at">selected =</span> <span class="st">&quot;None&quot;</span>)</span>
-<span id="cb10-39"><a href="shiny-intro.html#cb10-39" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-40"><a href="shiny-intro.html#cb10-40" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-41"><a href="shiny-intro.html#cb10-41" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-42"><a href="shiny-intro.html#cb10-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-43"><a href="shiny-intro.html#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-44"><a href="shiny-intro.html#cb10-44" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb10-45"><a href="shiny-intro.html#cb10-45" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-46"><a href="shiny-intro.html#cb10-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">observe</span>({</span>
-<span id="cb10-47"><a href="shiny-intro.html#cb10-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(input<span class="sc">$</span>town_name<span class="sc">!=</span><span class="st">&quot;None&quot;</span>) {</span>
-<span id="cb10-48"><a href="shiny-intro.html#cb10-48" aria-hidden="true" tabindex="-1"></a>      town_df <span class="ot">&lt;-</span> towns[towns<span class="sc">$</span>location<span class="sc">==</span>input<span class="sc">$</span>town_name, ]</span>
-<span id="cb10-49"><a href="shiny-intro.html#cb10-49" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletProxy</span>(<span class="st">&quot;map&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-50"><a href="shiny-intro.html#cb10-50" aria-hidden="true" tabindex="-1"></a>        <span class="fu">flyTo</span>(<span class="at">lng=</span>town_df<span class="sc">$</span>x, <span class="at">lat=</span>town_df<span class="sc">$</span>y, <span class="at">zoom=</span><span class="dv">10</span>)</span>
-<span id="cb10-51"><a href="shiny-intro.html#cb10-51" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-52"><a href="shiny-intro.html#cb10-52" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletProxy</span>(<span class="st">&quot;map&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-53"><a href="shiny-intro.html#cb10-53" aria-hidden="true" tabindex="-1"></a>        <span class="fu">flyToBounds</span>(</span>
-<span id="cb10-54"><a href="shiny-intro.html#cb10-54" aria-hidden="true" tabindex="-1"></a>          <span class="at">lng1 =</span> <span class="fl">137.725724</span>, <span class="at">lat1 =</span> <span class="sc">-</span><span class="fl">28.903687</span>, </span>
-<span id="cb10-55"><a href="shiny-intro.html#cb10-55" aria-hidden="true" tabindex="-1"></a>          <span class="at">lng2 =</span> <span class="fl">151.677076</span>, <span class="at">lat2 =</span> <span class="sc">-</span><span class="fl">10.772608</span></span>
-<span id="cb10-56"><a href="shiny-intro.html#cb10-56" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-57"><a href="shiny-intro.html#cb10-57" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-58"><a href="shiny-intro.html#cb10-58" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb10-59"><a href="shiny-intro.html#cb10-59" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-60"><a href="shiny-intro.html#cb10-60" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
-<span id="cb10-61"><a href="shiny-intro.html#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-62"><a href="shiny-intro.html#cb10-62" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-63"><a href="shiny-intro.html#cb10-63" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
-<span id="cb10-64"><a href="shiny-intro.html#cb10-64" aria-hidden="true" tabindex="-1"></a>        <span class="at">data=</span>sa2_polygons,</span>
-<span id="cb10-65"><a href="shiny-intro.html#cb10-65" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor=</span><span class="st">&quot;Orange&quot;</span>,</span>
-<span id="cb10-66"><a href="shiny-intro.html#cb10-66" aria-hidden="true" tabindex="-1"></a>        <span class="at">color=</span><span class="st">&quot;black&quot;</span>,</span>
-<span id="cb10-67"><a href="shiny-intro.html#cb10-67" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight=</span><span class="dv">1</span>,</span>
-<span id="cb10-68"><a href="shiny-intro.html#cb10-68" aria-hidden="true" tabindex="-1"></a>        <span class="at">group=</span><span class="st">&quot;Polygons&quot;</span></span>
-<span id="cb10-69"><a href="shiny-intro.html#cb10-69" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-70"><a href="shiny-intro.html#cb10-70" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addCircleMarkers</span>(</span>
-<span id="cb10-71"><a href="shiny-intro.html#cb10-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">lng=</span>towns<span class="sc">$</span>x,</span>
-<span id="cb10-72"><a href="shiny-intro.html#cb10-72" aria-hidden="true" tabindex="-1"></a>        <span class="at">lat=</span>towns<span class="sc">$</span>y,</span>
-<span id="cb10-73"><a href="shiny-intro.html#cb10-73" aria-hidden="true" tabindex="-1"></a>        <span class="at">popup=</span>glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;&lt;b&gt;Location:&lt;/b&gt; {towns$acute_care_centre}&quot;</span>),</span>
-<span id="cb10-74"><a href="shiny-intro.html#cb10-74" aria-hidden="true" tabindex="-1"></a>        <span class="at">radius=</span><span class="dv">2</span>, </span>
-<span id="cb10-75"><a href="shiny-intro.html#cb10-75" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillOpacity=</span><span class="dv">0</span>,</span>
-<span id="cb10-76"><a href="shiny-intro.html#cb10-76" aria-hidden="true" tabindex="-1"></a>        <span class="at">group=</span><span class="st">&quot;Towns&quot;</span></span>
-<span id="cb10-77"><a href="shiny-intro.html#cb10-77" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-78"><a href="shiny-intro.html#cb10-78" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addLayersControl</span>(</span>
-<span id="cb10-79"><a href="shiny-intro.html#cb10-79" aria-hidden="true" tabindex="-1"></a>        <span class="at">position=</span><span class="st">&quot;topright&quot;</span>,</span>
-<span id="cb10-80"><a href="shiny-intro.html#cb10-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">baseGroups=</span><span class="fu">c</span>(<span class="st">&quot;None&quot;</span>, <span class="st">&quot;Polygons&quot;</span>),</span>
-<span id="cb10-81"><a href="shiny-intro.html#cb10-81" aria-hidden="true" tabindex="-1"></a>        <span class="at">overlayGroups=</span><span class="fu">c</span>(<span class="st">&quot;Towns&quot;</span>),</span>
-<span id="cb10-82"><a href="shiny-intro.html#cb10-82" aria-hidden="true" tabindex="-1"></a>        <span class="at">options=</span><span class="fu">layersControlOptions</span>(<span class="at">collapsed =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb10-83"><a href="shiny-intro.html#cb10-83" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-84"><a href="shiny-intro.html#cb10-84" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb10-85"><a href="shiny-intro.html#cb10-85" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-86"><a href="shiny-intro.html#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-87"><a href="shiny-intro.html#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="shiny-intro.html#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb54-2"><a href="shiny-intro.html#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb54-3"><a href="shiny-intro.html#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb54-4"><a href="shiny-intro.html#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb54-5"><a href="shiny-intro.html#cb54-5" aria-hidden="true" tabindex="-1"></a>input_dir <span class="ot">&lt;-</span> <span class="st">&quot;./input&quot;</span></span>
+<span id="cb54-6"><a href="shiny-intro.html#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="shiny-intro.html#cb54-7" aria-hidden="true" tabindex="-1"></a>sa2_polygons <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;stacked_SA1_and_SA2_polygons_year2016_simplified.rds&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb54-8"><a href="shiny-intro.html#cb54-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(SA_level <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb54-9"><a href="shiny-intro.html#cb54-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-10"><a href="shiny-intro.html#cb54-10" aria-hidden="true" tabindex="-1"></a>towns <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(input_dir, <span class="st">&quot;df_towns.csv&quot;</span>))</span>
+<span id="cb54-11"><a href="shiny-intro.html#cb54-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-12"><a href="shiny-intro.html#cb54-12" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">navbarPage</span>(</span>
+<span id="cb54-13"><a href="shiny-intro.html#cb54-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;App-with-a-map&quot;</span>,</span>
+<span id="cb54-14"><a href="shiny-intro.html#cb54-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="st">&quot;nav&quot;</span>,</span>
+<span id="cb54-15"><a href="shiny-intro.html#cb54-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabPanel</span>(</span>
+<span id="cb54-16"><a href="shiny-intro.html#cb54-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Map&quot;</span>,</span>
+<span id="cb54-17"><a href="shiny-intro.html#cb54-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb54-18"><a href="shiny-intro.html#cb54-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">&quot;outer&quot;</span>,</span>
+<span id="cb54-19"><a href="shiny-intro.html#cb54-19" aria-hidden="true" tabindex="-1"></a>      tags<span class="sc">$</span><span class="fu">head</span>(</span>
+<span id="cb54-20"><a href="shiny-intro.html#cb54-20" aria-hidden="true" tabindex="-1"></a>        tags<span class="sc">$</span><span class="fu">style</span>(<span class="fu">HTML</span>(<span class="st">&quot;</span></span>
+<span id="cb54-21"><a href="shiny-intro.html#cb54-21" aria-hidden="true" tabindex="-1"></a><span class="st">            div.outer {</span></span>
+<span id="cb54-22"><a href="shiny-intro.html#cb54-22" aria-hidden="true" tabindex="-1"></a><span class="st">              position: fixed;</span></span>
+<span id="cb54-23"><a href="shiny-intro.html#cb54-23" aria-hidden="true" tabindex="-1"></a><span class="st">              top: 41px;</span></span>
+<span id="cb54-24"><a href="shiny-intro.html#cb54-24" aria-hidden="true" tabindex="-1"></a><span class="st">              left: 0;</span></span>
+<span id="cb54-25"><a href="shiny-intro.html#cb54-25" aria-hidden="true" tabindex="-1"></a><span class="st">              right: 0;</span></span>
+<span id="cb54-26"><a href="shiny-intro.html#cb54-26" aria-hidden="true" tabindex="-1"></a><span class="st">              bottom: 0;</span></span>
+<span id="cb54-27"><a href="shiny-intro.html#cb54-27" aria-hidden="true" tabindex="-1"></a><span class="st">              overflow: hidden;</span></span>
+<span id="cb54-28"><a href="shiny-intro.html#cb54-28" aria-hidden="true" tabindex="-1"></a><span class="st">              padding: 0;</span></span>
+<span id="cb54-29"><a href="shiny-intro.html#cb54-29" aria-hidden="true" tabindex="-1"></a><span class="st">            }</span></span>
+<span id="cb54-30"><a href="shiny-intro.html#cb54-30" aria-hidden="true" tabindex="-1"></a><span class="st">            &quot;</span>))</span>
+<span id="cb54-31"><a href="shiny-intro.html#cb54-31" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb54-32"><a href="shiny-intro.html#cb54-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletOutput</span>(<span class="st">&quot;map&quot;</span>, <span class="at">height =</span> <span class="st">&quot;100%&quot;</span>, <span class="at">width =</span> <span class="st">&quot;100%&quot;</span>),</span>
+<span id="cb54-33"><a href="shiny-intro.html#cb54-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">absolutePanel</span>(</span>
+<span id="cb54-34"><a href="shiny-intro.html#cb54-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">top =</span> <span class="dv">75</span>, <span class="at">left =</span> <span class="dv">10</span>,</span>
+<span id="cb54-35"><a href="shiny-intro.html#cb54-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">class =</span> <span class="st">&quot;panel panel-default&quot;</span>,</span>
+<span id="cb54-36"><a href="shiny-intro.html#cb54-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="st">&quot;town_name&quot;</span>, <span class="st">&quot;Town Name&quot;</span>,</span>
+<span id="cb54-37"><a href="shiny-intro.html#cb54-37" aria-hidden="true" tabindex="-1"></a>          <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">&quot;None&quot;</span>, <span class="fu">sort</span>(towns<span class="sc">$</span>location)),</span>
+<span id="cb54-38"><a href="shiny-intro.html#cb54-38" aria-hidden="true" tabindex="-1"></a>          <span class="at">selected =</span> <span class="st">&quot;None&quot;</span></span>
+<span id="cb54-39"><a href="shiny-intro.html#cb54-39" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb54-40"><a href="shiny-intro.html#cb54-40" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb54-41"><a href="shiny-intro.html#cb54-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb54-42"><a href="shiny-intro.html#cb54-42" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-43"><a href="shiny-intro.html#cb54-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb54-44"><a href="shiny-intro.html#cb54-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-45"><a href="shiny-intro.html#cb54-45" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb54-46"><a href="shiny-intro.html#cb54-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">observe</span>({</span>
+<span id="cb54-47"><a href="shiny-intro.html#cb54-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (input<span class="sc">$</span>town_name <span class="sc">!=</span> <span class="st">&quot;None&quot;</span>) {</span>
+<span id="cb54-48"><a href="shiny-intro.html#cb54-48" aria-hidden="true" tabindex="-1"></a>      town_df <span class="ot">&lt;-</span> towns[towns<span class="sc">$</span>location <span class="sc">==</span> input<span class="sc">$</span>town_name, ]</span>
+<span id="cb54-49"><a href="shiny-intro.html#cb54-49" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletProxy</span>(<span class="st">&quot;map&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-50"><a href="shiny-intro.html#cb54-50" aria-hidden="true" tabindex="-1"></a>        <span class="fu">flyTo</span>(<span class="at">lng =</span> town_df<span class="sc">$</span>x, <span class="at">lat =</span> town_df<span class="sc">$</span>y, <span class="at">zoom =</span> <span class="dv">10</span>)</span>
+<span id="cb54-51"><a href="shiny-intro.html#cb54-51" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb54-52"><a href="shiny-intro.html#cb54-52" aria-hidden="true" tabindex="-1"></a>      <span class="fu">leafletProxy</span>(<span class="st">&quot;map&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-53"><a href="shiny-intro.html#cb54-53" aria-hidden="true" tabindex="-1"></a>        <span class="fu">flyToBounds</span>(</span>
+<span id="cb54-54"><a href="shiny-intro.html#cb54-54" aria-hidden="true" tabindex="-1"></a>          <span class="at">lng1 =</span> <span class="fl">137.725724</span>, <span class="at">lat1 =</span> <span class="sc">-</span><span class="fl">28.903687</span>,</span>
+<span id="cb54-55"><a href="shiny-intro.html#cb54-55" aria-hidden="true" tabindex="-1"></a>          <span class="at">lng2 =</span> <span class="fl">151.677076</span>, <span class="at">lat2 =</span> <span class="sc">-</span><span class="fl">10.772608</span></span>
+<span id="cb54-56"><a href="shiny-intro.html#cb54-56" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb54-57"><a href="shiny-intro.html#cb54-57" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb54-58"><a href="shiny-intro.html#cb54-58" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb54-59"><a href="shiny-intro.html#cb54-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-60"><a href="shiny-intro.html#cb54-60" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>map <span class="ot">&lt;-</span> <span class="fu">renderLeaflet</span>({</span>
+<span id="cb54-61"><a href="shiny-intro.html#cb54-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb54-62"><a href="shiny-intro.html#cb54-62" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb54-63"><a href="shiny-intro.html#cb54-63" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addPolygons</span>(</span>
+<span id="cb54-64"><a href="shiny-intro.html#cb54-64" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> sa2_polygons,</span>
+<span id="cb54-65"><a href="shiny-intro.html#cb54-65" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillColor =</span> <span class="st">&quot;Orange&quot;</span>,</span>
+<span id="cb54-66"><a href="shiny-intro.html#cb54-66" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb54-67"><a href="shiny-intro.html#cb54-67" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="dv">1</span>,</span>
+<span id="cb54-68"><a href="shiny-intro.html#cb54-68" aria-hidden="true" tabindex="-1"></a>        <span class="at">group =</span> <span class="st">&quot;Polygons&quot;</span></span>
+<span id="cb54-69"><a href="shiny-intro.html#cb54-69" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb54-70"><a href="shiny-intro.html#cb54-70" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addCircleMarkers</span>(</span>
+<span id="cb54-71"><a href="shiny-intro.html#cb54-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">lng =</span> towns<span class="sc">$</span>x,</span>
+<span id="cb54-72"><a href="shiny-intro.html#cb54-72" aria-hidden="true" tabindex="-1"></a>        <span class="at">lat =</span> towns<span class="sc">$</span>y,</span>
+<span id="cb54-73"><a href="shiny-intro.html#cb54-73" aria-hidden="true" tabindex="-1"></a>        <span class="at">popup =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;&lt;b&gt;Location:&lt;/b&gt; {towns$acute_care_centre}&quot;</span>),</span>
+<span id="cb54-74"><a href="shiny-intro.html#cb54-74" aria-hidden="true" tabindex="-1"></a>        <span class="at">radius =</span> <span class="dv">2</span>,</span>
+<span id="cb54-75"><a href="shiny-intro.html#cb54-75" aria-hidden="true" tabindex="-1"></a>        <span class="at">fillOpacity =</span> <span class="dv">0</span>,</span>
+<span id="cb54-76"><a href="shiny-intro.html#cb54-76" aria-hidden="true" tabindex="-1"></a>        <span class="at">group =</span> <span class="st">&quot;Towns&quot;</span></span>
+<span id="cb54-77"><a href="shiny-intro.html#cb54-77" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb54-78"><a href="shiny-intro.html#cb54-78" aria-hidden="true" tabindex="-1"></a>      <span class="fu">addLayersControl</span>(</span>
+<span id="cb54-79"><a href="shiny-intro.html#cb54-79" aria-hidden="true" tabindex="-1"></a>        <span class="at">position =</span> <span class="st">&quot;topright&quot;</span>,</span>
+<span id="cb54-80"><a href="shiny-intro.html#cb54-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">baseGroups =</span> <span class="fu">c</span>(<span class="st">&quot;None&quot;</span>, <span class="st">&quot;Polygons&quot;</span>),</span>
+<span id="cb54-81"><a href="shiny-intro.html#cb54-81" aria-hidden="true" tabindex="-1"></a>        <span class="at">overlayGroups =</span> <span class="fu">c</span>(<span class="st">&quot;Towns&quot;</span>),</span>
+<span id="cb54-82"><a href="shiny-intro.html#cb54-82" aria-hidden="true" tabindex="-1"></a>        <span class="at">options =</span> <span class="fu">layersControlOptions</span>(<span class="at">collapsed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb54-83"><a href="shiny-intro.html#cb54-83" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb54-84"><a href="shiny-intro.html#cb54-84" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb54-85"><a href="shiny-intro.html#cb54-85" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb54-86"><a href="shiny-intro.html#cb54-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-87"><a href="shiny-intro.html#cb54-87" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
 <center>
 <img src="www/app-images/03-04-leaflet-and-shiny-interactivity.png" align="center" width="300" />
 </center>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="shiny-intro.html#cb11-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir=</span><span class="st">&quot;input/apps/03-04-leaflet-and-shiny-interactivity/&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="shiny-intro.html#cb55-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runGitHub</span>(<span class="st">&quot;RWParsons/interactive-maps&quot;</span>, <span class="at">subdir =</span> <span class="st">&quot;input/apps/03-04-leaflet-and-shiny-interactivity/&quot;</span>)</span></code></pre></div>
 <p>We used a range of features from both leaflet and shiny to make iTRAQI interactive. This was a very brief introduction to reactivity and shiny. I recommend reading the <a href="https://mastering-shiny.org/basic-app.html">sections 1-3 of Mastering Shiny</a> as the next chapter will cover specific tricks to add specific features to your maps won’t do as good of a job introducing the fundamentals of shiny as Mastering Shiny does.</p>
 
 </div>
