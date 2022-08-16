@@ -7,9 +7,8 @@ Here's a simple leaflet map.
 library(leaflet)
 
 leaflet() %>%
-  addTiles() %>%  # Add default OpenStreetMap map tiles
-  addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
-
+  addTiles() %>% # Add default OpenStreetMap map tiles
+  addMarkers(lng = 174.768, lat = -36.852, popup = "The birthplace of R")
 ```
 
 Before we begin adding to this map, we need to create the layers that we want to add.
@@ -37,22 +36,22 @@ First, lets make a data.frame with the coordinates for the Princess Alexandra  a
 ```{r, results='hide', message=FALSE, warning=FALSE}
 library(tidyverse)
 library(sf)
-download_layer <- function(layer_name, save_dir="input") {
+download_layer <- function(layer_name, save_dir = "input") {
   githubURL <- glue::glue("https://raw.githubusercontent.com/RWParsons/iTRAQI_app/main/input/layers/{layer_name}")
-  download.file(githubURL, file.path(save_dir, layer_name), method="curl")
+  download.file(githubURL, file.path(save_dir, layer_name), method = "curl")
   readRDS(file.path(save_dir, layer_name))
 }
 
 raster_layer <- download_layer("rehab_raster.rds") %>%
-  raster::raster(., layer=1)
+  raster::raster(., layer = 1)
 
 polygons_layer <- download_layer("stacked_SA1_and_SA2_polygons_year2016_simplified.rds")
-polygons_layer <- polygons_layer[polygons_layer$SA_level==2, ] # show SA2 regions for example
+polygons_layer <- polygons_layer[polygons_layer$SA_level == 2, ] # show SA2 regions for example
 
 marker_locations <- data.frame(
-  centre_name=c("Princess Alexandra Hospital (PAH)", "Townsville University Hospital"),
-  x=c(153.033519, 146.762041),
-  y=c(-27.497374, -19.320502)
+  centre_name = c("Princess Alexandra Hospital (PAH)", "Townsville University Hospital"),
+  x = c(153.033519, 146.762041),
+  y = c(-27.497374, -19.320502)
 )
 ```
 
@@ -63,29 +62,28 @@ Here, in figure \@ref(fig:leaflet-objects), we make a leaflet map with the three
 leaflet() %>%
   addProviderTiles("CartoDB.VoyagerNoLabels") %>% # add a simple base map
   addPolygons(
-    data=polygons_layer,
-    fillColor="Orange",
-    color="black",
-    weight=1,
-    group="Polygons"
+    data = polygons_layer,
+    fillColor = "Orange",
+    color = "black",
+    weight = 1,
+    group = "Polygons"
   ) %>%
   addRasterImage(
-    x=raster_layer,
-    colors="YlOrRd",
-    group="Raster"
+    x = raster_layer,
+    colors = "YlOrRd",
+    group = "Raster"
   ) %>%
   addMarkers(
-    lng=marker_locations$x, 
-    lat=marker_locations$y,
-    label=marker_locations$centre_name,
-    group="Points"
+    lng = marker_locations$x,
+    lat = marker_locations$y,
+    label = marker_locations$centre_name,
+    group = "Points"
   ) %>%
   addLayersControl(
-    position="topright",
-    baseGroups=c("Polygons", "Raster", "Points"),
-    options=layersControlOptions(collapsed = FALSE)
+    position = "topright",
+    baseGroups = c("Polygons", "Raster", "Points"),
+    options = layersControlOptions(collapsed = FALSE)
   )
-
 ```
 
 Almost all of these objects were made before being used in the shiny app. Chapter \@ref(building) will introduce the methods used to make them. Chapter \@ref(shiny-intro) will introduce the basics of a shiny app. The following chapters will introduce the more specific methods that were used to construct the iTRAQI app itself.

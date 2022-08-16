@@ -14,16 +14,13 @@ The most basic shiny app has a user-interface (`ui`) and a back-end (`server`) s
 ```{r, eval=FALSE}
 library(shiny)
 
-ui <- fluidPage(
-  
-)
+ui <- fluidPage()
 
 server <- function(input, output, session) {
-  
+
 }
 
 shinyApp(ui, server)
-
 ```
 
 This book will include many example shiny apps and accompanying code. However, since it'd be very time consuming to host all those apps independently, I will instead provide the code and sometimes an image of how the app displays. With every example app there will be a followup line of code with `shiny::runGitHub(...)` that you can use to run the app locally. If you run this line in R on your own computer, it will run the app in a way that you can then interact with it.
@@ -35,13 +32,13 @@ The inputs on the ui side always have an inputId and it is by this name that we 
 library(shiny)
 
 ui <- fluidPage(
-  numericInput(inputId='n', label='sample size', value=10),
-  plotOutput('plot')
+  numericInput(inputId = "n", label = "sample size", value = 10),
+  plotOutput("plot")
 )
 
 server <- function(input, output, session) {
-  output$plot <- renderPlot(expr={
-    hist(x=rnorm(input$n))
+  output$plot <- renderPlot(expr = {
+    hist(x = rnorm(input$n))
   })
 }
 
@@ -50,7 +47,7 @@ shinyApp(ui, server)
 
 (And here's your code to run the app locally)
 ```{r eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-01-example-app/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir = "input/apps/03-01-example-app/")
 ```
 
 
@@ -68,13 +65,14 @@ library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
-  filter(SA_level==2)
+  filter(SA_level == 2)
 
 ui <- navbarPage(
-  "App-with-a-map", id="nav",
+  "App-with-a-map",
+  id = "nav",
   tabPanel(
     "Map",
-    leafletOutput('map')
+    leafletOutput("map")
   )
 )
 
@@ -83,11 +81,11 @@ server <- function(input, output, session) {
     leaflet() %>%
       addTiles() %>%
       addPolygons(
-        data=sa2_polygons,
-        fillColor="Orange",
-        color="black",
-        weight=1,
-        group="Polygons"
+        data = sa2_polygons,
+        fillColor = "Orange",
+        color = "black",
+        weight = 1,
+        group = "Polygons"
       )
   })
 }
@@ -100,7 +98,7 @@ shinyApp(ui, server)
 </center>
 
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-02-first-leaflet-map/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir = "input/apps/03-02-first-leaflet-map/")
 ```
 
 
@@ -118,16 +116,17 @@ library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
-  filter(SA_level==2)
+  filter(SA_level == 2)
 
 ui <- navbarPage(
-  "App-with-a-map", id="nav",
+  "App-with-a-map",
+  id = "nav",
   tabPanel(
     "Map",
     div(
-      class="outer",
-        tags$head(
-          tags$style(HTML("
+      class = "outer",
+      tags$head(
+        tags$style(HTML("
             div.outer {
               position: fixed;
               top: 41px;
@@ -137,10 +136,9 @@ ui <- navbarPage(
               overflow: hidden;
               padding: 0;
             }
-            "
-          ))
-        ),
-      leafletOutput('map', height="100%", width="100%")
+            "))
+      ),
+      leafletOutput("map", height = "100%", width = "100%")
     )
   )
 )
@@ -150,11 +148,11 @@ server <- function(input, output, session) {
     leaflet() %>%
       addTiles() %>%
       addPolygons(
-        data=sa2_polygons,
-        fillColor="Orange",
-        color="black",
-        weight=1,
-        group="Polygons"
+        data = sa2_polygons,
+        fillColor = "Orange",
+        color = "black",
+        weight = 1,
+        group = "Polygons"
       )
   })
 }
@@ -165,7 +163,7 @@ shinyApp(ui, server)
 ![](www/app-images/03-03-fill-panel-with-css.png){width=300px align=center}
 </center>
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-03-fill-panel-with-css/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir = "input/apps/03-03-fill-panel-with-css/")
 ```
 
 Now we have an app with a map, not just an app with a map (and painfully empty space).
@@ -180,8 +178,8 @@ There are interactive elements which come in leaflet before even incorporating s
 However, we will need to incorporate shiny inputs at the point where we want to add features to our app that leaflet doesn't have for us. To do this, we update our map very differently to how we updated the histogram in our first app example. Re-making the map is computationally expensive and would drastically slow down how quick the map responds to your inputs. In the histogram example, we used the following code.
 
 ```{r, eval=FALSE}
-output$plot <- renderPlot(expr={
-  hist(x=rnorm(input$n))
+output$plot <- renderPlot(expr = {
+  hist(x = rnorm(input$n))
 })
 ```
 
@@ -204,18 +202,19 @@ library(sf)
 input_dir <- "./input"
 
 sa2_polygons <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds")) %>%
-  filter(SA_level==2)
+  filter(SA_level == 2)
 
-towns <- read.csv(file.path(input_dir, "df_towns.csv")) 
+towns <- read.csv(file.path(input_dir, "df_towns.csv"))
 
 ui <- navbarPage(
-  "App-with-a-map", id="nav",
+  "App-with-a-map",
+  id = "nav",
   tabPanel(
     "Map",
     div(
-      class="outer",
-        tags$head(
-          tags$style(HTML("
+      class = "outer",
+      tags$head(
+        tags$style(HTML("
             div.outer {
               position: fixed;
               top: 41px;
@@ -225,60 +224,59 @@ ui <- navbarPage(
               overflow: hidden;
               padding: 0;
             }
-            "
-          ))
-        ),
-      leafletOutput('map', height="100%", width="100%"),
+            "))
+      ),
+      leafletOutput("map", height = "100%", width = "100%"),
       absolutePanel(
-        top=75, left=10, 
+        top = 75, left = 10,
         class = "panel panel-default",
-        selectInput('town_name', 'Town Name',
-                  choices = c('None', sort(towns$location)),
-                  selected = "None")
+        selectInput("town_name", "Town Name",
+          choices = c("None", sort(towns$location)),
+          selected = "None"
+        )
       )
     )
   )
 )
 
 server <- function(input, output, session) {
-  
   observe({
-    if(input$town_name!="None") {
-      town_df <- towns[towns$location==input$town_name, ]
+    if (input$town_name != "None") {
+      town_df <- towns[towns$location == input$town_name, ]
       leafletProxy("map") %>%
-        flyTo(lng=town_df$x, lat=town_df$y, zoom=10)
+        flyTo(lng = town_df$x, lat = town_df$y, zoom = 10)
     } else {
       leafletProxy("map") %>%
         flyToBounds(
-          lng1 = 137.725724, lat1 = -28.903687, 
+          lng1 = 137.725724, lat1 = -28.903687,
           lng2 = 151.677076, lat2 = -10.772608
         )
     }
   })
-  
+
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
       addPolygons(
-        data=sa2_polygons,
-        fillColor="Orange",
-        color="black",
-        weight=1,
-        group="Polygons"
+        data = sa2_polygons,
+        fillColor = "Orange",
+        color = "black",
+        weight = 1,
+        group = "Polygons"
       ) %>%
       addCircleMarkers(
-        lng=towns$x,
-        lat=towns$y,
-        popup=glue::glue("<b>Location:</b> {towns$acute_care_centre}"),
-        radius=2, 
-        fillOpacity=0,
-        group="Towns"
+        lng = towns$x,
+        lat = towns$y,
+        popup = glue::glue("<b>Location:</b> {towns$acute_care_centre}"),
+        radius = 2,
+        fillOpacity = 0,
+        group = "Towns"
       ) %>%
       addLayersControl(
-        position="topright",
-        baseGroups=c("None", "Polygons"),
-        overlayGroups=c("Towns"),
-        options=layersControlOptions(collapsed = FALSE)
+        position = "topright",
+        baseGroups = c("None", "Polygons"),
+        overlayGroups = c("Towns"),
+        options = layersControlOptions(collapsed = FALSE)
       )
   })
 }
@@ -289,7 +287,7 @@ shinyApp(ui, server)
 ![](www/app-images/03-04-leaflet-and-shiny-interactivity.png){width=300px align=center}
 </center>
 ```{r, eval=FALSE}
-shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/03-04-leaflet-and-shiny-interactivity/")
+shiny::runGitHub("RWParsons/interactive-maps", subdir = "input/apps/03-04-leaflet-and-shiny-interactivity/")
 ```
 
 We used a range of features from both leaflet and shiny to make iTRAQI interactive. This was a very brief introduction to reactivity and shiny. I recommend reading the [sections 1-3 of Mastering Shiny](https://mastering-shiny.org/basic-app.html) as the next chapter will cover specific tricks to add specific features to your maps won't do as good of a job introducing the fundamentals of shiny as Mastering Shiny does.

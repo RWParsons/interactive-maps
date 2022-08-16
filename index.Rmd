@@ -55,8 +55,8 @@ pkgs <- c(
 
 required_packages <- pkgs[!pkgs %in% installed.packages()]
 
-if(length(required_packages)>0) {
-  cat("Installing the following packages: \n", paste0(required_packages, collapse=", "))
+if (length(required_packages) > 0) {
+  cat("Installing the following packages: \n", paste0(required_packages, collapse = ", "))
   install.packages(required_packages)
 } else {
   cat("All required packages already installed!")
@@ -68,8 +68,8 @@ if(length(required_packages)>0) {
 ```{r include=FALSE}
 # automatically create a bib database for R packages
 knitr::write_bib(c(
-  .packages(), 'bookdown', 'knitr', 'rmarkdown'
-), 'packages.bib')
+  .packages(), "bookdown", "knitr", "rmarkdown"
+), "packages.bib")
 ```
 
 
