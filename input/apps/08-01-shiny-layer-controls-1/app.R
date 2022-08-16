@@ -10,7 +10,7 @@ qld_SA2s <- filter(polygons_layer, SA_level==2)
 qld_SA1s <- filter(polygons_layer, SA_level==1)
 
 # palette for remoteness index
-paLFac <- colorFactor("Greens", levels=0:4, ordered=TRUE, reverse=TRUE)
+palFac <- colorFactor("Greens", levels=0:4, ordered=TRUE, reverse=TRUE)
 
 
 # create index for drive times
@@ -108,7 +108,7 @@ server <- function(input, output, session) {
         color="black",
         weight=1,
         fillOpacity=1,
-        fillColor=paLFac(qld_SA1s$ra),
+        fillColor=palFac(qld_SA1s$ra),
         group="SA1 Remoteness"
       ) %>%
       addPolygons(

@@ -108,9 +108,9 @@ leaflet() %>%
 
 ```
 
-There are some benefits to using this approach. The main one being that since the control is on the front end, and done by leaflet, the compute effort of changing the displayed layer doesn't require the shiny server. This is on theme with the recent push for server-less shiny and using observable in quarto documents to get shiny-like behaviour without requiring a shiny server! 
+There are some benefits to using this approach. The main one being that since the control is on the front end, and done by leaflet, the compute effort of changing the displayed layer doesn't require any additional compute from the shiny server. This is on theme with the recent push for server-less shiny and using observable in quarto documents to get shiny-like behaviour without requiring a shiny server! 
 
-This approach may also be fine if you don't have many layers to swap between, they're not very detailed (like SA1 polygons are!), if you don't care too much about load time, or if don't need to trigger any other changes to your app when the selected layer changes. (Un)fortunately for us, iTRAQI had all these things!
+This approach may also be fine if you don't have many layers to swap between, they're not very detailed (unlike SA1 polygons), if you don't care too much about load time, or if don't need to trigger any other changes to your app when the selected layer changes. (Un)fortunately for us, iTRAQI had all these things!
 
 ## shiny inputs to select layers
 
@@ -226,11 +226,188 @@ shinyApp(ui, server)
 ```
 
 
+This gets us back to where we were when using `leafletControl()`. Fortunately, we can use this control panel differently with shiny to reduce that load time!
 
+## Updating a shape's aesthetic.
 
+Since we are wanting to show the same shapes (polygons) with each of the selections in the above app, it doesn't really make sense for us to load the same polygons 3 times! The only difference is the `fillColor` but they're otherwise the same shapes.
 
+This approach is taken from [timelyportfolio](https://github.com/timelyportfolio)'s comment [here](https://github.com/rstudio/leaflet/issues/496#issuecomment-650122985). Since we are separating out some new javascript content to make this work, we can also move our css style that makes our map larger there too.
 
+```{r, eval=F}
 
+leaflet_css_and_js <- tags$head(
+  tags$style(HTML("
+            div.outer {
+              position: fixed;
+              top: 41px;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              overflow: hidden;
+              padding: 0;
+            }
+            "
+          )),
+    # add in methods from https://github.com/rstudio/leaflet/pull/598
+    tags$script(HTML(
+'
+window.LeafletWidget.methods.setStyle = function(category, layerId, style){
+  var map = this;
+  if (!layerId){
+    return;
+  } else if (!(typeof(layerId) === "object" && layerId.length)){ // in case a single layerid is given
+    layerId = [layerId];
+  }
 
+  //convert columnstore to row store
+  style = HTMLWidgets.dataframeToD3(style);
+  //console.log(style);
 
+  layerId.forEach(function(d,i){
+    var layer = map.layerManager.getLayer(category, d);
+    if (layer){ // or should this raise an error?
+      layer.setStyle(style[i]);
+    }
+  });
+};
 
+window.LeafletWidget.methods.setRadius = function(layerId, radius){
+  var map = this;
+  if (!layerId){
+    return;
+  } else if (!(typeof(layerId) === "object" && layerId.length)){ // in case a single layerid is given
+    layerId = [layerId];
+    radius = [radius];
+  }
+
+  layerId.forEach(function(d,i){
+    var layer = map.layerManager.getLayer("marker", d);
+    if (layer){ // or should this raise an error?
+      layer.setRadius(radius[i]);
+    }
+  });
+};
+'
+    ))
+  )
+
+setShapeStyle <- function(map, data = getMapData(map), layerId,
+                          stroke = NULL, color = NULL,
+                          weight = NULL, opacity = NULL,
+                          fill = NULL, fillColor = NULL,
+                          fillOpacity = NULL, dashArray = NULL,
+                          smoothFactor = NULL, noClip = NULL,
+                          options = NULL) {
+  options <- c(
+    list(layerId = layerId),
+    options,
+    filterNULL(list(
+      stroke = stroke, color = color,
+      weight = weight, opacity = opacity,
+      fill = fill, fillColor = fillColor,
+      fillOpacity = fillOpacity, dashArray = dashArray,
+      smoothFactor = smoothFactor, noClip = noClip
+    ))
+  )
+  # evaluate all options
+  options <- evalFormula(options, data = data)
+  # make them the same length (by building a data.frame)
+  options <- do.call(data.frame, c(options, list(stringsAsFactors = FALSE)))
+
+  layerId <- options[[1]]
+  style <- options[-1] # drop layer column
+
+  leaflet::invokeMethod(map, data, "setStyle", "shape", layerId, style)
+}
+```
+
+This function lets us update the fillColor of the polygons, allowing us to only have the one polygon layer when we load the app, and updating the color when the user selects a different layer on the control panel. In this first example, we will only show the SA2 layer and let the control panel switch between showing the acute and rehab travel time. Something else you may notice is that setShapeStyle updates the aesthetics of a shape by the specific layerId rather than the group as a whole. Therefore, we can add the layerId to the polygon when we add it to the map initially, and refer to these id's when we call setShapeStyle. Since we are only using the SA2 polygons in this example, we can just use the unique codes for each area (CODE) as layerId's as these are unique to each polygon within the layer.
+
+```{r, eval=F}
+library(shiny)
+library(leaflet)
+library(tidyverse)
+library(sf)
+input_dir <- "./input"
+
+polygons_layer <- readRDS(file.path(input_dir, "stacked_SA1_and_SA2_polygons_year2016_simplified.rds"))
+qld_SA2s <- filter(polygons_layer, SA_level==2)
+
+ui <- navbarPage(
+  "App-with-a-map", id="nav",
+  tabPanel(
+    "Map",
+    div(
+      class="outer",
+      leaflet_css_and_js,
+      leafletOutput('map', height="100%", width="100%"),
+      absolutePanel(
+        
+        id = "controls", class = "panel panel-default", fixed = TRUE,
+        draggable = TRUE, top = 50, left = "auto", right = 10, bottom = "auto",
+        width = 330, height = 200,
+        h4("Layer"),
+        radioButtons(
+          inputId="layer_selection", label=NULL,
+          choices=c(
+            "None", "SA2 Acute", "SA2 Rehab"
+            ),
+          selected="None"
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  observeEvent(input$layer_selection, {
+    # find out what the care type was - will either be "acute" or "rehab" as that's the first word 
+    care_type_selected <- str_extract(tolower(input$layer_selection), "[a-z]*$") 
+    
+    f_update_fill <- function(map) {
+      fill <- switch(
+        care_type_selected,
+        "acute"=palNumMix(qld_SA2s$value_acute),
+        "rehab"=palNumMix(qld_SA2s$value_rehab)
+      )
+      
+      setShapeStyle(
+        map=map,
+        layerId=qld_SA2s$CODE,
+        fillColor=fill
+      ) %>% 
+        showGroup("qld_SA2s")
+    }
+    
+    
+    if(input$layer_selection == "None") {
+      leafletProxy("map") %>% hideGroup("qld_SA2s")
+    } else {
+      leafletProxy("map") %>% f_update_fill()
+    }
+  })
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addPolygons(
+        data=qld_SA2s,
+        color="black",
+        weight=1,
+        fillOpacity=1,
+        group="qld_SA2s",
+        layerId=qld_SA2s$CODE
+      )
+  })
+}
+
+shinyApp(ui, server)
+```
+
+```{r, eval=F}
+shiny::runGitHub("RWParsons/interactive-maps", subdir="input/apps/08-02-setShapeStyle/")
+```
+
+In this app, we can give the user the ability to select between acute and rehab travel times but without having to load the polygon layer twice! We will use the `setShapeStyle()` function to modify the fillColor at every opportunity now as it drastically reduces the app load time.
